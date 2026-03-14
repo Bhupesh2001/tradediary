@@ -101,10 +101,13 @@ body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:14
 .profile-btn:hover,.profile-btn.active-profile{border-color:var(--accent);color:var(--accent);background:rgba(110,231,183,.08)}
 .profile-dot{width:7px;height:7px;border-radius:50%}
 .dot-inr{background:var(--accent)}.dot-usd{background:var(--accent2)}
-.user-row{display:flex;align-items:center;gap:8px;padding:6px 4px;flex-wrap:nowrap}
-.av-circle{width:28px;height:28px;min-width:28px;border-radius:50%;background:linear-gradient(135deg,#6ee7b7,#38bdf8);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#0d0f14}
-.user-email{font-size:11px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1}
-.signout-btn{background:none;border:none;color:var(--muted);cursor:pointer;font-size:18px;padding:2px 4px;line-height:1;flex-shrink:0}
+.user-row{display:flex;align-items:center;gap:8px;padding:7px 8px;background:var(--surface2);border-radius:9px;border:1px solid var(--border2)}
+.av-circle{width:30px;height:30px;min-width:30px;border-radius:50%;background:linear-gradient(135deg,#6ee7b7,#38bdf8);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#0d0f14;flex-shrink:0}
+.user-info{flex:1;min-width:0}
+.user-email{font-size:11px;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:600}
+.user-status{font-size:10px;color:var(--accent);margin-top:1px}
+.account-section{display:flex;flex-direction:column;gap:5px;margin-top:2px}
+.signout-btn{background:none;border:none;color:var(--muted);cursor:pointer;font-size:16px;padding:2px 4px;line-height:1;flex-shrink:0}
 .signout-btn:hover{color:var(--danger)}
 
 /* Main wrap */
@@ -217,6 +220,37 @@ body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:14
 .filter-date{width:120px}
 .filter-label{font-size:11px;color:var(--muted);font-weight:600}
 
+/* Date Range Picker */
+.drp-wrap{position:relative;display:inline-block}
+.drp-trigger{display:flex;align-items:center;gap:7px;background:var(--surface2);border:1px solid var(--border2);border-radius:7px;padding:5px 11px;cursor:pointer;font-family:var(--font);font-size:12px;color:var(--text);transition:border-color .15s;white-space:nowrap;user-select:none}
+.drp-trigger:hover{border-color:var(--border2)}
+.drp-trigger.active{border-color:var(--accent)}
+.drp-trigger svg{opacity:.5;flex-shrink:0}
+.drp-trigger .drp-val{color:var(--text)}
+.drp-trigger .drp-val.placeholder{color:var(--muted)}
+.drp-dropdown{display:none;position:absolute;top:calc(100% + 6px);left:0;background:var(--surface);border:1px solid var(--border2);border-radius:12px;padding:14px;z-index:500;box-shadow:0 8px 32px rgba(0,0,0,.5);min-width:280px}
+.drp-dropdown.open{display:block}
+.drp-months{display:flex;gap:16px}
+.drp-month{flex:1}
+.drp-month-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.drp-month-nav{background:none;border:none;color:var(--muted);cursor:pointer;font-size:16px;padding:2px 6px;line-height:1;border-radius:4px}
+.drp-month-nav:hover{color:var(--text);background:var(--surface2)}
+.drp-month-name{font-size:12px;font-weight:700;color:var(--text)}
+.drp-dow{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;margin-bottom:4px}
+.drp-dow span{font-size:9px;color:var(--muted);text-align:center;font-weight:600;padding:2px 0}
+.drp-days{display:grid;grid-template-columns:repeat(7,1fr);gap:2px}
+.drp-day{height:26px;display:flex;align-items:center;justify-content:center;font-size:11px;border-radius:5px;cursor:pointer;color:var(--text);transition:all .1s;border:none;background:none;font-family:var(--font)}
+.drp-day:hover:not(.empty):not(.disabled){background:var(--surface2)}
+.drp-day.empty{cursor:default}
+.drp-day.disabled{color:var(--muted);opacity:.35;cursor:default}
+.drp-day.in-range{background:rgba(110,231,183,.12);border-radius:0}
+.drp-day.range-start{background:var(--accent)!important;color:#0d0f14!important;border-radius:5px 0 0 5px;font-weight:700}
+.drp-day.range-end{background:var(--accent)!important;color:#0d0f14!important;border-radius:0 5px 5px 0;font-weight:700}
+.drp-day.range-start.range-end{border-radius:5px}
+.drp-footer{display:flex;align-items:center;justify-content:space-between;margin-top:12px;padding-top:10px;border-top:1px solid var(--border)}
+.drp-selected-label{font-size:11px;color:var(--muted)}
+.drp-selected-label b{color:var(--accent)}
+
 /* Heatmap */
 .heatmap{display:grid;grid-template-columns:repeat(7,1fr);gap:3px}
 .hm-labels{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;margin-bottom:4px}
@@ -290,12 +324,12 @@ body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:14
 .drawer-overlay.open{display:block}
 
 /* Bottom nav (mobile only) */
-.bottom-nav{display:none;position:fixed;bottom:0;left:0;right:0;height:var(--bottomnav-h);background:var(--surface);border-top:1px solid var(--border);z-index:40;padding:0 4px;padding-bottom:env(safe-area-inset-bottom)}
-.bottom-nav-inner{display:flex;height:100%;align-items:center}
-.bn-item{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;cursor:pointer;color:var(--muted);transition:color .15s;padding:6px 2px;border:none;background:none;font-family:var(--font)}
+.bottom-nav{display:none;position:fixed;bottom:0;left:0;right:0;background:var(--surface);border-top:1px solid var(--border);z-index:40;padding-bottom:env(safe-area-inset-bottom)}
+.bottom-nav-inner{display:flex;align-items:stretch;height:var(--bottomnav-h)}
+.bn-item{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;cursor:pointer;color:var(--muted);transition:color .15s;padding:8px 4px 6px;border:none;background:none;font-family:var(--font);min-width:0}
 .bn-item.active{color:var(--accent)}
-.bn-icon{width:20px;height:20px}
-.bn-label{font-size:9px;font-weight:600;letter-spacing:.3px}
+.bn-icon{width:22px;height:22px;flex-shrink:0;display:block}
+.bn-label{font-size:10px;font-weight:600;letter-spacing:.2px;line-height:1;white-space:nowrap}
 
 /* FAB (mobile) */
 .fab{display:none;position:fixed;bottom:calc(var(--bottomnav-h) + 12px);right:16px;width:52px;height:52px;border-radius:50%;background:var(--accent);color:#0d0f14;font-size:26px;font-weight:300;border:none;cursor:pointer;z-index:41;align-items:center;justify-content:center;line-height:1;box-shadow:0 4px 16px rgba(110,231,183,.3)}
@@ -308,7 +342,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:14
   .menu-btn{display:flex}
   .main.panel-open{margin-right:0}
   .notes-panel{width:100vw}
-  .bottom-nav{display:flex}
+  .bottom-nav{display:block}
   .fab{display:flex}
   .topbar-right .btn-ghost,.topbar-right .btn-accent,.topbar-right .sync-wrap{display:none}
   .topbar-right .profile-badge{display:flex}
@@ -378,23 +412,23 @@ body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:14
     <div class="nav-item" onclick="setPage('ai');closeSidebar()">
       <svg class="nav-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 4c0-1.1.9-2 2-2h8c1.1 0 2 .9 2 2v5c0 1.1-.9 2-2 2H9l-3 3v-3H4c-1.1 0-2-.9-2-2V4z"/></svg>AI Summariser
     </div>
-    <div class="nav-item" onclick="exportCSV();closeSidebar()">
-      <svg class="nav-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 2v8M5 7l3 3 3-3M3 12h10"/></svg>Export CSV
-    </div>
-    <div class="nav-item" onclick="openBackup();closeSidebar()">
-      <svg class="nav-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 8a6 6 0 1012 0 6 6 0 00-12 0M8 5v3l2 1"/></svg>Backup / Restore
-    </div>
   </nav>
   <div class="sidebar-footer">
     <div class="profile-switcher">
-      <div class="profile-label">Profile</div>
+      <div class="profile-label">Trading Profile</div>
       <div class="profile-btn active-profile" id="btnINR" onclick="switchProfile('INR')"><span class="profile-dot dot-inr"></span>Stocks ₹ INR</div>
       <div class="profile-btn" id="btnUSD" onclick="switchProfile('USD')"><span class="profile-dot dot-usd"></span>Crypto $ USD</div>
     </div>
-    <div class="user-row">
-      <div class="av-circle" id="avInitials">?</div>
-      <span class="user-email" id="userEmail">—</span>
-      <button class="signout-btn" onclick="doSignOut()" title="Sign out">⏻</button>
+    <div class="account-section">
+      <div class="profile-label">Account</div>
+      <div class="user-row">
+        <div class="av-circle" id="avInitials">?</div>
+        <div class="user-info">
+          <div class="user-email" id="userEmail">—</div>
+          <div class="user-status">Signed in</div>
+        </div>
+        <button class="signout-btn" onclick="doSignOut()" title="Sign out">⏻</button>
+      </div>
     </div>
   </div>
 </aside>
@@ -425,8 +459,6 @@ body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:14
       <div class="topbar-right">
         <span class="sync-wrap"><span class="sync-dot" id="syncDot"></span><span id="syncLabel" style="font-size:11px;color:var(--muted)">…</span></span>
         <span class="profile-badge badge-inr" id="profileBadge">₹ INR</span>
-        <button class="btn btn-ghost btn-sm" onclick="exportCSV()">↓ CSV</button>
-        <button class="btn btn-ghost btn-sm" onclick="openBackup()">⇅ Backup</button>
         <button class="btn btn-accent btn-sm" onclick="openModal()">+ Add Trade</button>
       </div>
     </div>
@@ -486,15 +518,40 @@ body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:14
       <div class="card">
         <div class="card-header">
           <span class="card-title">Trade Log</span>
-          <div style="display:flex;gap:6px;align-items:center"><span class="badge badge-blue" id="tradeCount">0</span><button class="btn btn-ghost btn-sm" onclick="exportCSV()">↓ CSV</button></div>
+          <div style="display:flex;gap:6px;align-items:center">
+            <span class="badge badge-blue" id="tradeCount">0</span>
+            <button class="btn btn-ghost btn-sm" onclick="openBackup()">⇅ Backup</button>
+            <button class="btn btn-ghost btn-sm" onclick="exportCSV()">↓ CSV</button>
+          </div>
         </div>
         <div class="filter-row">
           <input class="filter-input" id="logFSymbol" placeholder="Symbol..." oninput="renderLog()" style="width:90px"/>
-          <span class="filter-label">From</span>
-          <input class="filter-input filter-date" type="date" id="logFDateFrom" onchange="renderLog()"/>
-          <span class="filter-label">To</span>
-          <input class="filter-input filter-date" type="date" id="logFDateTo" onchange="renderLog()"/>
-          <button class="btn btn-ghost btn-sm" onclick="clearLogDateFilter()">Clear</button>
+          <span class="filter-label">From</span><input class="filter-input filter-date" type="date" id="logFDateFrom" onchange="renderLog()" style="display:none"/>
+          <span class="filter-label" style="display:none">To</span><input class="filter-input filter-date" type="date" id="logFDateTo" onchange="renderLog()" style="display:none"/>
+          <!-- Date Range Picker -->
+          <div class="drp-wrap" id="drpWrap">
+            <div class="drp-trigger" id="drpTrigger" onclick="toggleDRP()">
+              <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="3" width="12" height="11" rx="2"/><path d="M5 1v3M11 1v3M2 7h12"/></svg>
+              <span class="drp-val placeholder" id="drpLabel">Select date range</span>
+            </div>
+            <div class="drp-dropdown" id="drpDropdown">
+              <div class="drp-months">
+                <div class="drp-month">
+                  <div class="drp-month-header">
+                    <button class="drp-month-nav" onclick="drpNav(-1)">‹</button>
+                    <span class="drp-month-name" id="drpM1Name"></span>
+                    <button class="drp-month-nav" onclick="drpNav(1)" style="visibility:hidden">›</button>
+                  </div>
+                  <div class="drp-dow"><span>Su</span><span>Mo</span><span>Tu</span><span>We</span><span>Th</span><span>Fr</span><span>Sa</span></div>
+                  <div class="drp-days" id="drpDays1"></div>
+                </div>
+              </div>
+              <div class="drp-footer">
+                <span class="drp-selected-label" id="drpSelectedLabel">Click to select start date</span>
+                <button class="btn btn-ghost btn-sm" onclick="clearLogDateFilter()">Clear</button>
+              </div>
+            </div>
+          </div>
           <select class="filter-select" id="logFPnl" onchange="renderLog()"><option value="">All P&L</option><option value="profit">Profit</option><option value="loss">Loss</option></select>
           <select class="filter-select" id="logFEmotion" onchange="renderLog()"><option value="">All emotions</option><option value="calm">Calm</option><option value="fear">Fear</option><option value="greed">Greed</option><option value="revenge">Revenge</option><option value="confident">Confident</option><option value="disciplined">Disciplined</option></select>
           <select class="filter-select" id="logFSort" onchange="renderLog()"><option value="date-desc">Date ↓</option><option value="date-asc">Date ↑</option><option value="pnl-desc">P&L ↓</option><option value="pnl-asc">P&L ↑</option><option value="sym-asc">A-Z</option></select>
@@ -1300,6 +1357,127 @@ async function runAI(){
     out.innerHTML=(data.content?.[0]?.text||'No response.').replace(/\n/g,'<br>');
   }catch(e){out.innerHTML='<span style="color:var(--danger)">Error connecting to AI.</span>';}
 }
+
+// ── DATE RANGE PICKER ──────────────────────────────────────────────────────
+let drpYear = new Date().getFullYear();
+let drpMonth = new Date().getMonth();
+let drpStart = null, drpEnd = null, drpSelecting = false;
+let drpJustClicked = false; // suppress outside-close right after a day click
+const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+
+function toggleDRP(){
+  const dd = document.getElementById('drpDropdown');
+  const open = dd.classList.contains('open');
+  if(open){ closeDRP(); }
+  else { dd.classList.add('open'); document.getElementById('drpTrigger').classList.add('active'); renderDRP(); }
+}
+
+function closeDRP(){
+  document.getElementById('drpDropdown').classList.remove('open');
+  document.getElementById('drpTrigger').classList.remove('active');
+}
+
+function drpNav(dir){
+  drpMonth += dir;
+  if(drpMonth > 11){ drpMonth = 0; drpYear++; }
+  if(drpMonth < 0){ drpMonth = 11; drpYear--; }
+  renderDRP();
+}
+
+function renderDRP(){
+  document.getElementById('drpM1Name').textContent = MONTHS[drpMonth] + ' ' + drpYear;
+  renderDRPMonth('drpDays1', drpYear, drpMonth);
+}
+
+function renderDRPMonth(containerId, year, month){
+  const container = document.getElementById(containerId);
+  container.innerHTML = '';
+  const firstDay = new Date(year, month, 1).getDay();
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+  for(let i = 0; i < firstDay; i++){
+    const el = document.createElement('button');
+    el.className = 'drp-day empty'; el.disabled = true;
+    container.appendChild(el);
+  }
+  for(let d = 1; d <= daysInMonth; d++){
+    const dateStr = `${year}-${String(month+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const el = document.createElement('button');
+    el.className = 'drp-day';
+    el.textContent = d;
+    if(drpStart && drpEnd){
+      const s = drpStart <= drpEnd ? drpStart : drpEnd;
+      const e = drpStart <= drpEnd ? drpEnd : drpStart;
+      if(dateStr === s) el.classList.add('range-start');
+      if(dateStr === e) el.classList.add('range-end');
+      if(dateStr > s && dateStr < e) el.classList.add('in-range');
+    } else if(drpStart && dateStr === drpStart){
+      el.classList.add('range-start','range-end');
+    }
+    el.addEventListener('click', (ev) => { ev.stopPropagation(); drpSelectDay(dateStr); });
+    container.appendChild(el);
+  }
+}
+
+function drpSelectDay(dateStr){
+  drpJustClicked = true;
+  if(!drpSelecting || !drpStart){
+    // first click — set start, stay open for end date
+    drpStart = dateStr; drpEnd = null; drpSelecting = true;
+    updateDRPLabel(); renderDRP();
+  } else {
+    // second click — set end, apply, close
+    drpEnd = dateStr; drpSelecting = false;
+    const s = drpStart <= drpEnd ? drpStart : drpEnd;
+    const e = drpStart <= drpEnd ? drpEnd : drpStart;
+    drpStart = s; drpEnd = e;
+    document.getElementById('logFDateFrom').value = drpStart;
+    document.getElementById('logFDateTo').value = drpEnd;
+    renderLog();
+    updateDRPLabel(); renderDRP();
+    closeDRP();
+  }
+}
+
+function updateDRPLabel(){
+  const lbl = document.getElementById('drpLabel');
+  const sel = document.getElementById('drpSelectedLabel');
+  if(!drpStart && !drpEnd){
+    lbl.textContent = 'Select date range'; lbl.className = 'drp-val placeholder';
+    if(sel) sel.innerHTML = 'Click a date to start';
+  } else if(drpStart && !drpEnd){
+    lbl.textContent = drpStart + ' → ?'; lbl.className = 'drp-val';
+    if(sel) sel.innerHTML = `From <b>${drpStart}</b> — pick end date`;
+  } else {
+    lbl.textContent = drpStart + ' → ' + drpEnd; lbl.className = 'drp-val';
+    if(sel) sel.innerHTML = `<b>${drpStart}</b> to <b>${drpEnd}</b>`;
+  }
+}
+
+function clearLogDateFilter(){
+  drpStart = null; drpEnd = null; drpSelecting = false;
+  document.getElementById('logFDateFrom').value = '';
+  document.getElementById('logFDateTo').value = '';
+  closeDRP();
+  updateDRPLabel();
+  renderLog();
+}
+
+// outside click — only close if not mid-click on a day
+document.addEventListener('click', e => {
+  if(drpJustClicked){ drpJustClicked = false; return; }
+  const wrap = document.getElementById('drpWrap');
+  if(wrap && !wrap.contains(e.target)){
+    if(drpSelecting){
+      // abandoned mid-selection — keep start as single-date filter
+      drpEnd = null; drpSelecting = false;
+      document.getElementById('logFDateFrom').value = drpStart;
+      document.getElementById('logFDateTo').value = '';
+      renderLog();
+      updateDRPLabel();
+    }
+    closeDRP();
+  }
+});
 
 // Register service worker for PWA
 if('serviceWorker' in navigator){
