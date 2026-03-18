@@ -644,7 +644,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:14
       <div class="form-group"><label class="form-label">Date</label><input class="form-input" type="date" id="f_date"/></div>
       <div class="form-group"><label class="form-label">Direction</label><select class="form-select" id="f_dir"><option value="LONG">Long</option><option value="SHORT">Short</option></select></div>
       <div class="form-group"><label class="form-label">Strategy</label><input class="form-input" id="f_strat" placeholder="Breakout..."/></div>
-      <div class="form-group"><label class="form-label">Entry Price</label><input class="form-input" type="number" id="f_entry" placeholder="0.00"/></div>
+      <div class="form-group"><label class="form-label">Entry Price</label><input class="form-input" type="number" id="f_entry" placeholder="0.00" oninput="calcCryptoQty()"/></div>
       <div class="form-group"><label class="form-label">Exit Price</label><input class="form-input" type="number" id="f_exit" placeholder="0.00"/></div>
       <div class="form-group" id="grp_qty"><label class="form-label">Quantity</label><input class="form-input" type="number" id="f_qty" placeholder="Lots/shares"/></div>
       <div class="form-group" id="grp_sl"><label class="form-label">Stop Loss</label><input class="form-input" type="number" id="f_sl" placeholder="0.00"/></div>
@@ -1199,10 +1199,19 @@ function toggleProfileFields(){
   document.getElementById('grp_sl2').style.display=c?'flex':'none';
 }
 function calcCryptoQty(){
-  const entry=parseFloat(document.getElementById('f_entry').value);
-  const amt=parseFloat(document.getElementById('f_amount').value);
-  const lev=parseFloat(document.getElementById('f_leverage').value)||1;
-  document.getElementById('f_qty_calc').value=(entry>0&&amt>0)?(amt*lev/entry).toFixed(6)+' units':'';
+  const entry  = parseFloat(document.getElementById('f_entry').value);
+  const amount = parseFloat(document.getElementById('f_amount').value);
+  const lev    = parseFloat(document.getElementById('f_leverage').value) || 1;
+  const el     = document.getElementById('f_qty_calc');
+  if(entry > 0 && amount > 0){
+    const qty = (amount * lev) / entry;
+    // show up to 6 sig figs, strip trailing zeros
+    el.value = parseFloat(qty.toFixed(6)) + ' units';
+    el.style.color = 'var(--accent)';
+  } else {
+    el.value = '—';
+    el.style.color = 'var(--muted)';
+  }
 }
 function selectEm(el,em){selectedEmotion=em;document.querySelectorAll('#emSelectRow .em-tag').forEach(e=>e.classList.remove('selected'));el.classList.add('selected');}
 function saveTrade(){
