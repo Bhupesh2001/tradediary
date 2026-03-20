@@ -640,8 +640,12 @@ body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:14
   <div class="modal">
     <div class="modal-title"><span id="modalTitleText">Log Trade</span><button class="modal-close" onclick="closeModal()">✕</button></div>
     <div class="form-grid">
-      <div class="form-group"><label class="form-label">Symbol</label><input class="form-input" id="f_sym" placeholder="NIFTY, BTC..."/></div>
+      <div class="form-group"><label class="form-label">Symbol</label>
+        <input class="form-input" id="f_sym" placeholder="NIFTY, BTC..." list="symSuggestions" autocomplete="off" oninput="this.value=this.value.toUpperCase()"/>
+        <datalist id="symSuggestions"></datalist>
+      </div>
       <div class="form-group"><label class="form-label">Date</label><input class="form-input" type="date" id="f_date"/></div>
+      <div class="form-group"><label class="form-label">Time <span style="color:var(--muted);font-size:9px;font-weight:400;text-transform:none">(optional)</span></label><input class="form-input" type="time" id="f_time" placeholder="HH:MM"/></div>
       <div class="form-group"><label class="form-label">Direction</label><select class="form-select" id="f_dir"><option value="LONG">Long</option><option value="SHORT">Short</option></select></div>
       <div class="form-group"><label class="form-label">Strategy</label><input class="form-input" id="f_strat" placeholder="Breakout..."/></div>
       <div class="form-group"><label class="form-label">Entry Price</label><input class="form-input" type="number" id="f_entry" placeholder="0.00" oninput="calcCryptoQty()"/></div>
@@ -903,7 +907,7 @@ function renderDashboard(){
   document.getElementById('lossCount').textContent=t.losses;
   document.getElementById('beCount').textContent=t.be;
   document.getElementById('eqBadge').textContent=(t.pnl>=0?'+':'')+s+Math.abs(t.pnl).toLocaleString();
-  const sorted=[...trades].sort((a,b)=>new Date(a.date)-new Date(b.date));
+  const sorted=[...trades].sort((a,b)=>tradeDatetime(a)>tradeDatetime(b)?1:-1);
   let cum=0,labels=[],data=[];
   sorted.forEach(tr=>{cum+=tr.pnl;labels.push(tr.date.slice(5));data.push(+cum.toFixed(2));});
   if(eqChart)eqChart.destroy();
@@ -985,8 +989,9 @@ function applyFilters(trades,sym,pnl,em,strat,sort){
   if(strat)trades=trades.filter(t=>t.strat===strat);
   const[sf,sd]=(sort||'date-desc').split('-');
   trades.sort((a,b)=>{
-    const av=sf==='date'?a.date:sf==='pnl'?a.pnl:sf==='sym'?a.sym:a.date;
-    const bv=sf==='date'?b.date:sf==='pnl'?b.pnl:sf==='sym'?b.sym:b.date;
+    // use full datetime for date sort so trades on same day sort by time too
+    const av=sf==='date'?tradeDatetime(a):sf==='pnl'?a.pnl:sf==='sym'?a.sym:tradeDatetime(a);
+    const bv=sf==='date'?tradeDatetime(b):sf==='pnl'?b.pnl:sf==='sym'?b.sym:tradeDatetime(b);
     return sd==='desc'?(bv>av?1:-1):(av>bv?1:-1);
   });
   return trades;
@@ -1013,7 +1018,7 @@ function renderTradeRows(tbodyId,trades){
     const preview=t.notes?t.notes.slice(0,16)+(t.notes.length>16?'…':''):'—';
     tr.id='tr_'+t.id;
     tr.innerHTML=`
-      <td style="color:var(--muted)">${t.date}</td>
+      <td style="color:var(--muted)">${t.date}${t.time?'<br><span style="font-size:10px;color:var(--muted);opacity:.7">'+t.time+'</span>':''}</td>
       <td class="sym">${t.sym}</td>
       <td><span class="${t.dir==='LONG'?'dir-long':'dir-short'}">${t.dir}</span></td>
       <td>${s}${t.entry}</td><td>${s}${t.exit}</td>
@@ -1058,7 +1063,7 @@ function renderAnalytics(){
       scales:{x:{ticks:{color:'#7a7f95',font:{size:10}},grid:{display:false}},y:{ticks:{color:'#7a7f95',font:{size:9},callback:v=>s+v},grid:{color:'rgba(255,255,255,.04)'},position:'left'},y2:{ticks:{color:'#38bdf8',font:{size:9}},grid:{display:false},position:'right'}},
       onClick:(e,els)=>{if(els.length&&els[0].datasetIndex===0)navigateToMonthLog(mkeys[els[0].index]);}}});
   let cum=0,cl=[],cd=[];
-  [...trades].sort((a,b)=>new Date(a.date)-new Date(b.date)).forEach(t=>{cum+=t.pnl;cl.push(t.date.slice(5));cd.push(+cum.toFixed(2));});
+  [...trades].sort((a,b)=>tradeDatetime(a)>tradeDatetime(b)?1:-1).forEach(t=>{cum+=t.pnl;cl.push((t.time?t.time+' ':'')+t.date.slice(5));cd.push(+cum.toFixed(2));});
   if(cumChart)cumChart.destroy();
   const ctx=document.getElementById('cumChart').getContext('2d');
   const g=ctx.createLinearGradient(0,0,0,190);g.addColorStop(0,'rgba(56,189,248,.25)');g.addColorStop(1,'rgba(56,189,248,0)');
@@ -1158,11 +1163,15 @@ function openModal(){
   document.getElementById('saveTradeBtn').textContent='Log Trade';
   ['f_sym','f_strat','f_notes','f_qty','f_sl','f_sl2','f_entry','f_exit','f_qty_calc'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
   document.getElementById('f_date').value=new Date().toISOString().slice(0,10);
+  // set current time as default
+  const now=new Date();
+  document.getElementById('f_time').value=String(now.getHours()).padStart(2,'0')+':'+String(now.getMinutes()).padStart(2,'0');
   document.getElementById('f_dir').value='LONG';
   document.getElementById('f_leverage').value='1';
   document.getElementById('f_amount').value='';
   selectedEmotion='';
   document.querySelectorAll('#emSelectRow .em-tag').forEach(e=>e.classList.remove('selected'));
+  populateSymSuggestions();
   renderImgPreviews();toggleProfileFields();
   document.getElementById('modalOverlay').classList.add('open');
 }
@@ -1173,6 +1182,7 @@ function openEditModal(id){
   document.getElementById('saveTradeBtn').textContent='Save';
   document.getElementById('f_sym').value=t.sym;
   document.getElementById('f_date').value=t.date;
+  document.getElementById('f_time').value=t.time||'';
   document.getElementById('f_dir').value=t.dir;
   document.getElementById('f_strat').value=t.strat||'';
   document.getElementById('f_entry').value=t.entry;
@@ -1185,6 +1195,7 @@ function openEditModal(id){
   document.getElementById('f_notes').value=t.notes||'';
   selectedEmotion=t.emotion||'';
   document.querySelectorAll('#emSelectRow .em-tag').forEach(e=>e.classList.toggle('selected',e.textContent.toLowerCase()===selectedEmotion));
+  populateSymSuggestions();
   renderImgPreviews();toggleProfileFields();
   document.getElementById('modalOverlay').classList.add('open');
 }
@@ -1223,6 +1234,9 @@ function saveTrade(){
   const exit=parseFloat(document.getElementById('f_exit').value);
   const notes=document.getElementById('f_notes').value.trim();
   const emotion=selectedEmotion||'calm';
+  // time: if blank, assign 23:59 so it sorts last for that date
+  const rawTime=document.getElementById('f_time').value.trim();
+  const time=rawTime||'23:59';
   if(!sym||!date||isNaN(entry)||isNaN(exit)){alert('Fill Symbol, Date, Entry, Exit.');return;}
   let qty,sl,leverage,amount,pnl;
   if(currentProfile==='USD'){
@@ -1237,7 +1251,7 @@ function saveTrade(){
     leverage=null;amount=null;
     pnl=Math.round((dir==='LONG'?(exit-entry):(entry-exit))*qty);
   }
-  const obj={id:editingId||uid(),profile:currentProfile,sym,date,dir,strat,entry,exit,qty,sl,leverage,amount,notes,emotion,pnl,images:tradeImages};
+  const obj={id:editingId||uid(),profile:currentProfile,sym,date,time,dir,strat,entry,exit,qty,sl,leverage,amount,notes,emotion,pnl,images:tradeImages};
   if(editingId){const i=allTrades.findIndex(x=>x.id===editingId);if(i>=0)allTrades[i]=obj;}
   else allTrades.push(obj);
   saveTradeFB(obj);
@@ -1246,7 +1260,19 @@ function saveTrade(){
   if(document.getElementById('notesPanel').classList.contains('open')){const i=npTrades.findIndex(t=>t.id===obj.id);if(i>=0){npTrades[i]=obj;renderNotesPanel();}}
 }
 
-// ── DELETE ─────────────────────────────────────────────────────────────────
+// ── SYMBOL SUGGESTIONS ────────────────────────────────────────────────────
+function populateSymSuggestions(){
+  // collect unique symbols from current profile trades
+  const syms=[...new Set(allTrades.filter(t=>t.profile===currentProfile).map(t=>t.sym).filter(Boolean))].sort();
+  const dl=document.getElementById('symSuggestions');
+  dl.innerHTML=syms.map(s=>`<option value="${s}">`).join('');
+}
+
+// ── DATETIME SORT HELPER ──────────────────────────────────────────────────
+function tradeDatetime(t){
+  // returns sortable string "YYYY-MM-DD HH:MM"
+  return t.date + ' ' + (t.time||'23:59');
+}
 function askDelete(id){deleteTargetId=id;document.getElementById('confirmOverlay').classList.add('open');}
 function closeConfirm(){document.getElementById('confirmOverlay').classList.remove('open');deleteTargetId=null;}
 function confirmDelete(){
