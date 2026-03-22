@@ -2106,20 +2106,39 @@ function buildLtpHtml(data, entry, dir){
   </div>`;
 }
 
+// Try multiple proxies in sequence until one works
+const PROXIES = [
+  url => `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
+  url => `https://corsproxy.io/?${encodeURIComponent(url)}`,
+  url => `https://thingproxy.freeboard.io/fetch/${url}`,
+];
+
+async function proxyFetch(targetUrl){
+  let lastErr;
+  for(const proxy of PROXIES){
+    try{
+      const res = await fetch(proxy(targetUrl), {signal: AbortSignal.timeout(6000)});
+      if(!res.ok) throw new Error('HTTP '+res.status);
+      const text = await res.text();
+      // allorigins sometimes wraps in {contents:...}
+      try{ const j=JSON.parse(text); if(j.contents) return JSON.parse(j.contents); return j; }
+      catch{ return JSON.parse(text); }
+    } catch(e){ lastErr=e; }
+  }
+  throw lastErr || new Error('All proxies failed');
+}
+
 async function fetchPrice(setupId){
   const s = allSetups.find(x=>x.id===setupId); if(!s) return;
   const el = document.getElementById('lp_'+setupId);
   if(el) el.innerHTML = `<span style="font-size:11px;color:var(--muted)">Loading...</span>`;
-
-  // Use the stored yf_sym if available, else derive it
   const ticker = s.yfSym || yfSymbol(s.sym);
   try{
-    const PROXY = 'https://corsproxy.io/?';
-    const url = PROXY + encodeURIComponent(`https://query1.finance.yahoo.com/v8/finance/quote?symbols=${ticker}&fields=regularMarketPrice,regularMarketChangePercent,currency`);
-    const res = await fetch(url);
-    const data = await res.json();
+    // Use query2 (more stable) with v10 endpoint for Indian stocks
+    const targetUrl = `https://query2.finance.yahoo.com/v8/finance/quote?symbols=${ticker}&fields=regularMarketPrice,regularMarketChangePercent,currency,regularMarketTime`;
+    const data = await proxyFetch(targetUrl);
     const q = data?.quoteResponse?.result?.[0];
-    if(!q) throw new Error('No data');
+    if(!q || q.regularMarketPrice == null) throw new Error('No price data returned');
     const priceData = {
       price: q.regularMarketPrice,
       changePct: q.regularMarketChangePercent,
@@ -2137,7 +2156,7 @@ function fetchAllPrices(){
   getSetups().forEach(s => fetchPrice(s.id));
 }
 
-// Symbol search using Yahoo Finance search endpoint
+// Symbol search
 async function searchWlSymbol(query){
   const res = document.getElementById('wlSymResults');
   if(!query || query.length < 2){ res.classList.remove('open'); return; }
@@ -2146,28 +2165,39 @@ async function searchWlSymbol(query){
     res.innerHTML = `<div class="sym-result-item" style="color:var(--muted)">Searching...</div>`;
     res.classList.add('open');
     try{
-      const PROXY = 'https://corsproxy.io/?';
-      const url = PROXY + encodeURIComponent(`https://query1.finance.yahoo.com/v1/finance/search?q=${encodeURIComponent(query)}&quotesCount=8&newsCount=0&enableFuzzyQuery=false&region=IN&lang=en-IN`);
-      const data = await (await fetch(url)).json();
+      const targetUrl = `https://query2.finance.yahoo.com/v1/finance/search?q=${encodeURIComponent(query)}&quotesCount=10&newsCount=0&enableFuzzyQuery=true&region=IN&lang=en-IN`;
+      const data = await proxyFetch(targetUrl);
       const quotes = (data.quotes||[]).filter(q=>['EQUITY','INDEX','CRYPTOCURRENCY','ETF','MUTUALFUND'].includes(q.quoteType));
-      if(!quotes.length){ res.innerHTML=`<div class="sym-result-item" style="color:var(--muted)">No results. Type exact symbol (e.g. RELIANCE, ^NSEI)</div>`; return; }
-      res.innerHTML = quotes.map(q=>`
-        <div class="sym-result-item" onclick="selectWlSym('${q.symbol}','${(q.shortname||q.longname||'').replace(/'/g,'')}')">
+      if(!quotes.length){
+        res.innerHTML=`<div class="sym-result-item" style="color:var(--muted)">No results found for "${query}"</div>`;
+        return;
+      }
+      res.innerHTML = quotes.map(q=>{
+        const sym = q.symbol;
+        const name = (q.shortname||q.longname||'').replace(/['"]/g,'');
+        const exchange = q.exchange||'';
+        const type = q.quoteType||'';
+        return `<div class="sym-result-item" onclick="selectWlSym('${sym}','${name}')">
           <div>
-            <span class="wl-sym-ticker">${q.symbol}</span>
-            <div class="sym-result-name">${q.shortname||q.longname||''} · ${q.exchange||''}</div>
+            <span class="wl-sym-ticker">${sym}</span>
+            <div class="sym-result-name">${name} · ${exchange}</div>
           </div>
-          <span style="font-size:10px;color:var(--muted)">${q.quoteType}</span>
-        </div>`).join('');
+          <span style="font-size:10px;color:var(--muted);background:var(--surface3);padding:1px 5px;border-radius:3px">${type}</span>
+        </div>`;
+      }).join('');
     } catch(e){
-      res.innerHTML=`<div class="sym-result-item" style="color:var(--muted)">Search unavailable. Enter symbol manually.</div>`;
+      // Fallback: show manual entry hint with common NSE examples
+      res.innerHTML=`
+        <div class="sym-result-item" style="color:var(--muted);font-size:11px">Search unavailable. Type exact NSE symbol:</div>
+        ${['RELIANCE','TCS','INFY','NIFTY','BANKNIFTY','HDFCBANK'].filter(s=>s.startsWith(query)).map(s=>
+          `<div class="sym-result-item" onclick="selectWlSym('${s}.NS','${s}')" style="color:var(--text)">${s} <span style="color:var(--muted);font-size:10px">NSE</span></div>`
+        ).join('')}`;
     }
-  }, 350);
+  }, 400);
 }
 
 function selectWlSym(yfTicker, name){
-  // Convert YF ticker to display symbol (strip .NS, .BO etc)
-  const displaySym = yfTicker.replace(/\.(NS|BO|BSE)$/,'').replace(/^%5E/,'^');
+  const displaySym = yfTicker.replace(/\.(NS|BO|BSE)$/i,'').replace(/^\^/,'^');
   document.getElementById('wl_sym').value = displaySym;
   document.getElementById('wl_yf_sym').value = yfTicker;
   document.getElementById('wlSymResults').classList.remove('open');
