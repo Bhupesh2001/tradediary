@@ -358,6 +358,75 @@ body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:14
   .stats-grid{grid-template-columns:1fr 1fr}
   .stat-value{font-size:18px}
 }
+/* ── WATCHLIST ─────────────────────────────────────────────────────────── */
+.wl-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px}
+.wl-card{background:var(--surface2);border:1px solid var(--border2);border-radius:12px;padding:14px;cursor:pointer;transition:all .15s;position:relative;display:flex;flex-direction:column;gap:8px}
+.wl-card:hover{border-color:var(--accent);transform:translateY(-1px)}
+.wl-card-top{display:flex;align-items:flex-start;justify-content:space-between;gap:8px}
+.wl-card-sym{font-size:15px;font-weight:800;color:var(--text);font-family:var(--font)}
+.wl-card-badges{display:flex;gap:4px;flex-wrap:wrap;margin-top:2px}
+.wl-card-meta{display:flex;gap:10px;flex-wrap:wrap}
+.wl-meta-item{font-size:11px;color:var(--muted)}
+.wl-meta-item b{color:var(--text);font-family:var(--mono)}
+.wl-card-note{font-size:12px;color:var(--muted);line-height:1.5;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+.wl-card-img{width:100%;height:100px;object-fit:cover;border-radius:7px;border:1px solid var(--border)}
+.wl-card-footer{display:flex;justify-content:space-between;align-items:center;font-size:11px;color:var(--muted);margin-top:2px}
+.wl-rr{font-family:var(--mono);font-size:12px;font-weight:700}
+.wl-rr.good{color:var(--accent)}.wl-rr.ok{color:var(--warn)}.wl-rr.bad{color:var(--danger)}
+/* Status badges */
+.wl-badge{font-size:10px;font-weight:700;padding:2px 7px;border-radius:20px;letter-spacing:.3px;white-space:nowrap}
+.wl-badge.waiting{background:rgba(56,189,248,.12);color:var(--accent2)}
+.wl-badge.entered{background:rgba(110,231,183,.12);color:var(--accent)}
+.wl-badge.entry_not_found{background:rgba(122,127,149,.12);color:var(--muted)}
+.wl-badge.target_hit{background:rgba(110,231,183,.2);color:#4ade80}
+.wl-badge.stop_hit{background:rgba(248,113,113,.12);color:var(--danger)}
+.wl-badge.cancelled{background:rgba(122,127,149,.1);color:var(--muted)}
+.wl-badge.high{background:rgba(248,113,113,.12);color:var(--danger)}
+.wl-badge.medium{background:rgba(251,191,36,.12);color:var(--warn)}
+.wl-badge.low{background:rgba(110,231,183,.12);color:var(--accent)}
+.wl-badge.tf{background:var(--surface3);color:var(--muted)}
+/* Status selector buttons */
+.wl-status-btn{padding:5px 10px;border-radius:7px;font-size:12px;font-weight:600;cursor:pointer;background:var(--surface2);border:1px solid var(--border2);color:var(--muted);transition:all .15s}
+.wl-status-btn:hover{border-color:var(--border2);color:var(--text)}
+.wl-status-btn.active{border-color:var(--accent2);color:var(--accent2);background:rgba(56,189,248,.08)}
+/* Comment thread */
+.wl-comments{display:flex;flex-direction:column;gap:8px;margin-top:10px}
+.wl-comment{background:var(--surface2);border-radius:8px;padding:10px 12px;border:1px solid var(--border)}
+.wl-comment-meta{font-size:10px;color:var(--muted);margin-bottom:4px}
+.wl-comment-text{font-size:13px;color:var(--text);line-height:1.6;white-space:pre-wrap}
+.wl-comment-input-row{display:flex;gap:8px;margin-top:10px}
+.wl-comment-input{flex:1;background:var(--surface2);border:1px solid var(--border2);border-radius:8px;padding:8px 11px;color:var(--text);font-family:var(--font);font-size:13px;outline:none;resize:none;min-height:38px}
+.wl-comment-input:focus{border-color:var(--accent)}
+/* Detail panel sections */
+.wl-detail-section{margin-bottom:16px}
+.wl-detail-label{font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.6px;margin-bottom:6px}
+.wl-detail-prices{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px}
+.wl-price-box{background:var(--surface2);border-radius:8px;padding:10px;border:1px solid var(--border);text-align:center}
+.wl-price-lbl{font-size:10px;color:var(--muted);margin-bottom:3px}
+.wl-price-val{font-size:15px;font-weight:700;font-family:var(--mono)}
+.wl-price-val.entry{color:var(--text)}
+.wl-price-val.target{color:var(--accent)}
+.wl-price-val.sl{color:var(--danger)}
+/* Live price on watchlist cards */
+.wl-price-live{display:flex;flex-direction:column;align-items:flex-end;gap:2px}
+.wl-ltp{font-size:14px;font-weight:800;font-family:var(--mono);color:var(--text)}
+.wl-ltp-change{font-size:10px;font-weight:700;font-family:var(--mono)}
+.wl-ltp-change.up{color:var(--accent)}.wl-ltp-change.down{color:var(--danger)}
+.wl-to-entry{font-size:11px;font-weight:700;padding:2px 7px;border-radius:20px;font-family:var(--mono);white-space:nowrap}
+.wl-to-entry.near{background:rgba(110,231,183,.15);color:var(--accent)}
+.wl-to-entry.far{background:rgba(56,189,248,.1);color:var(--accent2)}
+.wl-to-entry.above{background:rgba(248,113,113,.1);color:var(--danger)}
+.wl-fetch-btn{background:none;border:none;color:var(--muted);cursor:pointer;font-size:11px;padding:2px 5px;border-radius:4px;font-family:var(--font)}
+.wl-fetch-btn:hover{color:var(--text);background:var(--surface3)}
+/* Symbol search in add modal */
+.sym-search-wrap{position:relative}
+.sym-search-results{position:absolute;top:100%;left:0;right:0;background:var(--surface);border:1px solid var(--border2);border-radius:8px;z-index:400;max-height:180px;overflow-y:auto;margin-top:3px;display:none}
+.sym-search-results.open{display:block}
+.sym-result-item{padding:8px 12px;cursor:pointer;font-size:13px;display:flex;justify-content:space-between;align-items:center;gap:8px}
+.sym-result-item:hover{background:var(--surface2)}
+.sym-result-name{font-size:11px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.wl-sym-ticker{font-weight:700;color:var(--text);font-family:var(--mono)}
+@media(max-width:768px){.wl-grid{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
@@ -411,6 +480,9 @@ body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:14
     </div>
     <div class="nav-item" onclick="setPage('ai');closeSidebar()">
       <svg class="nav-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 4c0-1.1.9-2 2-2h8c1.1 0 2 .9 2 2v5c0 1.1-.9 2-2 2H9l-3 3v-3H4c-1.1 0-2-.9-2-2V4z"/></svg>AI Summariser
+    </div>
+    <div class="nav-item" onclick="setPage('watchlist');closeSidebar()">
+      <svg class="nav-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 2l1.5 3 3.5.5-2.5 2.5.5 3.5L8 10l-3 1.5.5-3.5L3 5.5 6.5 5z"/></svg>Watchlist
     </div>
   </nav>
   <div class="sidebar-footer">
@@ -599,6 +671,67 @@ body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:14
       </div>
     </div>
 
+    <!-- WATCHLIST -->
+    <div class="content" id="pageWatchlist" style="display:none">
+      <div class="card" style="padding:14px 16px">
+        <div class="card-header" style="margin-bottom:10px">
+          <span class="card-title">Watchlist & Setups</span>
+          <div style="display:flex;gap:7px;align-items:center">
+            <span class="badge badge-blue" id="wlCount">0</span>
+            <button class="btn btn-ghost btn-sm" id="wlViewToggle" onclick="toggleWlView()" title="Toggle view">⊞ Grid</button>
+            <button class="btn btn-ghost btn-sm" onclick="fetchAllPrices()" title="Refresh live prices">⟳ Prices</button>
+            <button class="btn btn-accent btn-sm" onclick="openWlModal()">+ Add Setup</button>
+          </div>
+        </div>
+        <!-- Filters -->
+        <div class="filter-row" style="margin-bottom:14px">
+          <input class="filter-input" id="wlFSym" placeholder="Symbol..." oninput="renderWatchlist()" style="width:90px"/>
+          <select class="filter-select" id="wlFStatus" onchange="renderWatchlist()">
+            <option value="">All status</option>
+            <option value="waiting">Waiting</option>
+            <option value="entered">Entered</option>
+            <option value="entry_not_found">Entry Not Found</option>
+            <option value="target_hit">Target Hit</option>
+            <option value="stop_hit">Stop Hit</option>
+            <option value="cancelled">Cancelled</option>
+          </select>
+          <select class="filter-select" id="wlFPriority" onchange="renderWatchlist()">
+            <option value="">All priority</option>
+            <option value="high">High</option>
+            <option value="medium">Medium</option>
+            <option value="low">Low</option>
+          </select>
+          <select class="filter-select" id="wlFTF" onchange="renderWatchlist()">
+            <option value="">All timeframes</option>
+            <option value="1m">1m</option>
+            <option value="5m">5m</option>
+            <option value="15m">15m</option>
+            <option value="1h">1H</option>
+            <option value="4h">4H</option>
+            <option value="1d">Daily</option>
+            <option value="1w">Weekly</option>
+            <option value="1mo">Monthly</option> onchange="renderWatchlist()">
+            <option value="date-desc">Newest first</option>
+            <option value="date-asc">Oldest first</option>
+            <option value="priority">Priority</option>
+            <option value="sym-asc">Symbol A-Z</option>
+          </select>
+        </div>
+        <!-- Grid view -->
+        <div id="wlGrid" class="wl-grid"></div>
+        <!-- List view (hidden by default) -->
+        <div id="wlList" style="display:none;overflow-x:auto">
+          <table class="trade-table">
+            <thead><tr><th>Date</th><th>Symbol</th><th>Strategy</th><th>TF</th><th>Entry</th><th>Target</th><th>SL</th><th>R:R</th><th>Priority</th><th>Status</th><th>Actions</th></tr></thead>
+            <tbody id="wlListBody"></tbody>
+          </table>
+        </div>
+        <div id="wlEmpty" style="display:none;text-align:center;padding:40px;color:var(--muted);font-size:13px">
+          No setups yet. Click <b>+ Add Setup</b> to start tracking your watchlist.
+        </div>
+      </div>
+    </div>
+
     <!-- bottom padding for mobile nav -->
     <div style="height:var(--bottomnav-h)" class="mobile-spacer"></div>
   </div>
@@ -627,6 +760,10 @@ body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:14
     <button class="bn-item" id="bn-ai" onclick="setPage('ai')">
       <svg class="bn-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 4c0-1.1.9-2 2-2h8c1.1 0 2 .9 2 2v5c0 1.1-.9 2-2 2H9l-3 3v-3H4c-1.1 0-2-.9-2-2V4z"/></svg>
       <span class="bn-label">AI</span>
+    </button>
+    <button class="bn-item" id="bn-watchlist" onclick="setPage('watchlist')">
+      <svg class="bn-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 2l1.5 3 3.5.5-2.5 2.5.5 3.5L8 10l-3 1.5.5-3.5L3 5.5 6.5 5z"/></svg>
+      <span class="bn-label">Watch</span>
     </button>
   </div>
 </nav>
@@ -681,6 +818,86 @@ body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:14
       <button class="btn btn-ghost" onclick="closeModal()">Cancel</button>
       <button class="btn btn-accent" id="saveTradeBtn" onclick="saveTrade()">Log Trade</button>
     </div>
+  </div>
+</div>
+
+      <button class="btn btn-accent" id="saveTradeBtn" onclick="saveTrade()">Log Trade</button>
+    </div>
+  </div>
+</div>
+
+<!-- WATCHLIST ADD/EDIT MODAL -->
+<div class="modal-overlay" id="wlModalOverlay">
+  <div class="modal" style="max-width:520px">
+    <div class="modal-title"><span id="wlModalTitle">Add Setup</span><button class="modal-close" onclick="closeWlModal()">✕</button></div>
+    <div class="form-grid">
+      <div class="form-group"><label class="form-label">Symbol <span style="font-size:9px;color:var(--muted);font-weight:400;text-transform:none">(type to search NSE/Crypto)</span></label>
+        <div class="sym-search-wrap">
+          <input class="form-input" id="wl_sym" placeholder="RELIANCE, NIFTY, BTC..." autocomplete="off"
+            oninput="this.value=this.value.toUpperCase();searchWlSymbol(this.value);calcWlRR()"
+            onfocus="if(this.value.length>1)searchWlSymbol(this.value)"
+          />
+          <div class="sym-search-results" id="wlSymResults"></div>
+        </div>
+        <input type="hidden" id="wl_yf_sym"/>
+      </div>
+      <div class="form-group"><label class="form-label">Date Noted</label><input class="form-input" type="date" id="wl_date"/></div>
+      <div class="form-group"><label class="form-label">Strategy</label><input class="form-input" id="wl_strat" placeholder="Breakout, Reversal..."/></div>
+      <div class="form-group"><label class="form-label">Timeframe</label>
+        <select class="form-select" id="wl_tf"><option value="">—</option><option value="1m">1m</option><option value="5m">5m</option><option value="15m">15m</option><option value="1h">1H</option><option value="4h">4H</option><option value="1d">Daily</option><option value="1w">Weekly</option><option value="1mo">Monthly</option></select>
+      </div>
+      <div class="form-group"><label class="form-label">Direction</label><select class="form-select" id="wl_dir"><option value="LONG">Long</option><option value="SHORT">Short</option></select></div>
+      <div class="form-group"><label class="form-label">Priority</label>
+        <select class="form-select" id="wl_priority"><option value="high">🔴 High</option><option value="medium" selected>🟡 Medium</option><option value="low">🟢 Low</option></select>
+      </div>
+      <div class="form-group"><label class="form-label">Entry Price</label><input class="form-input" type="number" id="wl_entry" placeholder="0.00" oninput="calcWlRR()"/></div>
+      <div class="form-group"><label class="form-label">Target Price</label><input class="form-input" type="number" id="wl_target" placeholder="0.00" oninput="calcWlRR()"/></div>
+      <div class="form-group"><label class="form-label">Stop Loss</label><input class="form-input" type="number" id="wl_sl" placeholder="0.00" oninput="calcWlRR()"/></div>
+      <div class="form-group"><label class="form-label">R:R Ratio</label><input class="form-input" id="wl_rr" readonly style="opacity:.7;color:var(--accent)"/></div>
+      <div class="form-group full">
+        <label class="form-label">Status</label>
+        <div style="display:flex;flex-wrap:wrap;gap:6px" id="wlStatusRow">
+          <div class="wl-status-btn active" data-status="waiting" onclick="selectWlStatus(this)">⏳ Waiting</div>
+          <div class="wl-status-btn" data-status="entered" onclick="selectWlStatus(this)">✅ Entered</div>
+          <div class="wl-status-btn" data-status="entry_not_found" onclick="selectWlStatus(this)">🚫 Entry Not Found</div>
+          <div class="wl-status-btn" data-status="target_hit" onclick="selectWlStatus(this)">🎯 Target Hit</div>
+          <div class="wl-status-btn" data-status="stop_hit" onclick="selectWlStatus(this)">🛑 Stop Hit</div>
+          <div class="wl-status-btn" data-status="cancelled" onclick="selectWlStatus(this)">❌ Cancelled</div>
+        </div>
+      </div>
+      <div class="form-group full">
+        <label class="form-label">Entry Plan / Notes</label>
+        <textarea class="form-input" id="wl_notes" style="min-height:80px;resize:vertical" placeholder="Describe your setup, confluence factors, market context..."></textarea>
+      </div>
+      <div class="form-group full">
+        <label class="form-label">Chart Screenshots</label>
+        <div class="image-upload-row" id="wlImgPreviewRow"></div>
+        <div style="display:flex;gap:7px;margin-top:6px">
+          <label class="upload-btn-sm">📎 Add Chart<input type="file" accept="image/*" multiple style="display:none" onchange="handleWlImages(this)"/></label>
+          <span style="font-size:11px;color:var(--muted);align-self:center">or Ctrl+V</span>
+        </div>
+      </div>
+    </div>
+    <div class="form-footer"><button class="btn btn-ghost" onclick="closeWlModal()">Cancel</button><button class="btn btn-accent" onclick="saveSetup()">Save Setup</button></div>
+  </div>
+</div>
+
+<!-- WATCHLIST DETAIL PANEL -->
+<div class="modal-overlay" id="wlDetailOverlay">
+  <div class="modal" style="max-width:560px;max-height:92vh">
+    <div class="modal-title">
+      <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+        <span id="wlDetailSym" style="font-size:16px"></span>
+        <span id="wlDetailStatus" class="badge"></span>
+        <span id="wlDetailPriority" class="badge"></span>
+      </div>
+      <div style="display:flex;gap:7px;align-items:center">
+        <button class="btn btn-ghost btn-sm" onclick="editSetupFromDetail()">Edit</button>
+        <button class="btn btn-danger btn-sm" onclick="deleteSetupFromDetail()">Del</button>
+        <button class="modal-close" onclick="closeWlDetail()">✕</button>
+      </div>
+    </div>
+    <div id="wlDetailBody" style="overflow-y:auto;max-height:calc(92vh - 80px);padding-top:4px"></div>
   </div>
 </div>
 
@@ -800,6 +1017,7 @@ window._onLogin = function(user){
   document.getElementById('avInitials').textContent=initials;
   document.getElementById('userEmail').textContent=user.email;
   startFirebaseListener();
+  startSetupsListener();
   switchProfile(currentProfile);
 };
 window._onLogout = function(){
@@ -860,18 +1078,16 @@ function closeSidebar(){document.getElementById('sidebar').classList.remove('mob
 // ── NAVIGATION ─────────────────────────────────────────────────────────────
 function setPage(p){
   currentPage=p;
-  ['dashboard','log','analytics','psychology','ai'].forEach(id=>{
+  ['dashboard','log','analytics','psychology','ai','watchlist'].forEach(id=>{
     const el=document.getElementById('page'+id.charAt(0).toUpperCase()+id.slice(1));
-    el.style.display=id===p?'flex':'none';
-    if(id===p)el.style.flexDirection='column';
+    if(el){el.style.display=id===p?'flex':'none';if(id===p)el.style.flexDirection='column';}
   });
-  document.querySelectorAll('.nav-item').forEach((el,i)=>el.classList.toggle('active',['dashboard','log','analytics','psychology','ai'][i]===p));
-  // bottom nav
-  ['dashboard','log','analytics','psychology','ai'].forEach(id=>{
+  document.querySelectorAll('.nav-item').forEach((el,i)=>el.classList.toggle('active',['dashboard','log','analytics','psychology','ai','watchlist'][i]===p));
+  ['dashboard','log','analytics','psychology','ai','watchlist'].forEach(id=>{
     const bn=document.getElementById('bn-'+id);
     if(bn)bn.classList.toggle('active',id===p);
   });
-  document.getElementById('pageTitle').textContent={dashboard:'Dashboard',log:'Trade Log',analytics:'Analytics',psychology:'Psychology',ai:'AI Summariser'}[p];
+  document.getElementById('pageTitle').textContent={dashboard:'Dashboard',log:'Trade Log',analytics:'Analytics',psychology:'Psychology',ai:'AI Summariser',watchlist:'Watchlist'}[p];
   document.getElementById('mainScroll').scrollTo({top:0,behavior:'smooth'});
   renderPage(p);
 }
@@ -880,6 +1096,7 @@ function renderPage(p){
   if(p==='log')renderLog();
   if(p==='analytics')renderAnalytics();
   if(p==='psychology')renderPsychology();
+  if(p==='watchlist')renderWatchlist();
 }
 
 // ── STATS ──────────────────────────────────────────────────────────────────
@@ -1519,8 +1736,450 @@ if('serviceWorker' in navigator){
   window.addEventListener('load',()=>navigator.serviceWorker.register('/tradediary/sw.js').catch(()=>{}));
 }
 
+// ── WATCHLIST ──────────────────────────────────────────────────────────────
+let allSetups = [];
+let wlImages = [], editingSetupId = null, wlSelectedStatus = 'waiting', wlViewMode = 'grid', openDetailId = null;
+
+function getSetups(){ return allSetups.filter(s=>s.profile===currentProfile); }
+
+function saveSetupFB(setup){
+  if(!currentUID||!window._fbReady)return;
+  window._fbSet('users/'+currentUID+'/setups/'+setup.id,setup)
+    .then(()=>setSyncStatus('synced','Synced ✓')).catch(()=>setSyncStatus('error','Error'));
+}
+function deleteSetupFB(id){
+  if(!currentUID||!window._fbReady)return;
+  window._fbRemove('users/'+currentUID+'/setups/'+id)
+    .then(()=>setSyncStatus('synced','Synced ✓')).catch(()=>setSyncStatus('error','Error'));
+}
+
+function startSetupsListener(){
+  if(!currentUID||!window._fbReady)return;
+  window._fbListen('users/'+currentUID+'/setups', data=>{
+    allSetups = data ? Object.values(data) : [];
+    if(currentPage==='watchlist') renderWatchlist();
+  });
+}
+
+// Status/priority display helpers
+const WL_STATUS_LABELS = {
+  waiting:'⏳ Waiting', entered:'✅ Entered', entry_not_found:'🚫 Entry Not Found',
+  target_hit:'🎯 Target Hit', stop_hit:'🛑 Stop Hit', cancelled:'❌ Cancelled'
+};
+const WL_PRIORITY_LABELS = {high:'🔴 High', medium:'🟡 Medium', low:'🟢 Low'};
+
+function wlRR(entry,target,sl,dir){
+  const e=parseFloat(entry),t=parseFloat(target),s=parseFloat(sl);
+  if(!e||!t||!s) return null;
+  const reward = dir==='LONG' ? t-e : e-t;
+  const risk   = dir==='LONG' ? e-s : s-e;
+  if(risk<=0||reward<0) return null;
+  return (reward/risk).toFixed(2);
+}
+
+function calcWlRR(){
+  const e=document.getElementById('wl_entry').value;
+  const t=document.getElementById('wl_target').value;
+  const s=document.getElementById('wl_sl').value;
+  const dir=document.getElementById('wl_dir').value;
+  const rr=wlRR(e,t,s,dir);
+  const el=document.getElementById('wl_rr');
+  if(rr){ el.value='1 : '+rr; el.style.color=rr>=2?'var(--accent)':rr>=1?'var(--warn)':'var(--danger)'; }
+  else { el.value='—'; el.style.color='var(--muted)'; }
+}
+
+function selectWlStatus(el){
+  wlSelectedStatus=el.dataset.status;
+  document.querySelectorAll('#wlStatusRow .wl-status-btn').forEach(b=>b.classList.remove('active'));
+  el.classList.add('active');
+}
+
+// ── OPEN / CLOSE MODAL ────────────────────────────────────────────────────
+function openWlModal(id=null){
+  editingSetupId=id; wlImages=[];
+  const s = id ? allSetups.find(x=>x.id===id) : null;
+  document.getElementById('wlModalTitle').textContent = s ? 'Edit Setup' : 'Add Setup';
+  document.getElementById('wl_sym').value   = s?.sym||'';
+  document.getElementById('wl_yf_sym').value = s?.yfSym||'';
+  document.getElementById('wl_date').value  = s?.date||new Date().toISOString().slice(0,10);
+  document.getElementById('wl_strat').value = s?.strat||'';
+  document.getElementById('wl_tf').value    = s?.tf||'';
+  document.getElementById('wl_dir').value   = s?.dir||'LONG';
+  document.getElementById('wl_priority').value = s?.priority||'medium';
+  document.getElementById('wl_entry').value  = s?.entry||'';
+  document.getElementById('wl_target').value = s?.target||'';
+  document.getElementById('wl_sl').value     = s?.sl||'';
+  document.getElementById('wl_notes').value  = s?.notes||'';
+  wlSelectedStatus = s?.status||'waiting';
+  document.querySelectorAll('#wlStatusRow .wl-status-btn').forEach(b=>{
+    b.classList.toggle('active', b.dataset.status===wlSelectedStatus);
+  });
+  wlImages = [...(s?.images||[])];
+  renderWlImgPreviews();
+  calcWlRR();
+  document.getElementById('wlModalOverlay').classList.add('open');
+}
+function closeWlModal(){ document.getElementById('wlModalOverlay').classList.remove('open'); }
+
+function saveSetup(){
+  const sym=document.getElementById('wl_sym').value.trim().toUpperCase();
+  const date=document.getElementById('wl_date').value;
+  if(!sym||!date){ alert('Symbol and date are required.'); return; }
+  const setup={
+    id: editingSetupId||uid(),
+    profile: currentProfile,
+    sym, date,
+    yfSym: document.getElementById('wl_yf_sym').value || yfSymbol(sym),
+    strat: document.getElementById('wl_strat').value.trim(),
+    tf: document.getElementById('wl_tf').value,
+    dir: document.getElementById('wl_dir').value,
+    priority: document.getElementById('wl_priority').value,
+    entry: parseFloat(document.getElementById('wl_entry').value)||0,
+    target: parseFloat(document.getElementById('wl_target').value)||0,
+    sl: parseFloat(document.getElementById('wl_sl').value)||0,
+    notes: document.getElementById('wl_notes').value.trim(),
+    status: wlSelectedStatus,
+    images: wlImages,
+    comments: editingSetupId ? (allSetups.find(x=>x.id===editingSetupId)?.comments||[]) : [],
+    createdAt: editingSetupId ? (allSetups.find(x=>x.id===editingSetupId)?.createdAt||Date.now()) : Date.now(),
+    updatedAt: Date.now()
+  };
+  if(editingSetupId){ const i=allSetups.findIndex(x=>x.id===editingSetupId); if(i>=0) allSetups[i]=setup; }
+  else allSetups.push(setup);
+  saveSetupFB(setup);
+  closeWlModal();
+  renderWatchlist();
+  if(openDetailId===setup.id) renderWlDetail(setup.id);
+}
+
+// ── DELETE ────────────────────────────────────────────────────────────────
+function deleteSetupFromDetail(){
+  const id = openDetailId;
+  if(!id||!confirm('Delete this setup?')) return;
+  allSetups=allSetups.filter(s=>s.id!==id);
+  deleteSetupFB(id);
+  closeWlDetail();
+  renderWatchlist();
+}
+
+// ── DETAIL PANEL ─────────────────────────────────────────────────────────
+function openWlDetail(id){
+  openDetailId=id;
+  renderWlDetail(id);
+  document.getElementById('wlDetailOverlay').classList.add('open');
+}
+function closeWlDetail(){ document.getElementById('wlDetailOverlay').classList.remove('open'); openDetailId=null; }
+function editSetupFromDetail(){
+  const id = openDetailId;
+  closeWlDetail();
+  openWlModal(id);
+}
+
+function renderWlDetail(id){
+  const s=allSetups.find(x=>x.id===id); if(!s) return;
+  openDetailId=id;
+  const rr=wlRR(s.entry,s.target,s.sl,s.dir);
+  const rrColor=rr>=2?'var(--accent)':rr>=1?'var(--warn)':'var(--danger)';
+  document.getElementById('wlDetailSym').textContent=s.sym+(s.tf?' · '+s.tf:'')+(s.strat?' · '+s.strat:'');
+  document.getElementById('wlDetailStatus').className='badge wl-badge '+s.status;
+  document.getElementById('wlDetailStatus').textContent=WL_STATUS_LABELS[s.status]||s.status;
+  document.getElementById('wlDetailPriority').className='badge wl-badge '+s.priority;
+  document.getElementById('wlDetailPriority').textContent=WL_PRIORITY_LABELS[s.priority]||s.priority;
+
+  const comments=s.comments||[];
+  document.getElementById('wlDetailBody').innerHTML=`
+    <div class="wl-detail-prices">
+      <div class="wl-price-box"><div class="wl-price-lbl">Entry</div><div class="wl-price-val entry">${s.entry?CS()+s.entry:'—'}</div></div>
+      <div class="wl-price-box"><div class="wl-price-lbl">Target</div><div class="wl-price-val target">${s.target?CS()+s.target:'—'}</div></div>
+      <div class="wl-price-box"><div class="wl-price-lbl">Stop Loss</div><div class="wl-price-val sl">${s.sl?CS()+s.sl:'—'}</div></div>
+    </div>
+    ${rr?`<div style="text-align:center;margin-bottom:14px;font-size:13px;color:var(--muted)">R:R <b style="color:${rrColor};font-family:var(--mono)">1 : ${rr}</b> · Direction <b>${s.dir}</b></div>`:''}
+    ${s.notes?`<div class="wl-detail-section"><div class="wl-detail-label">Entry Plan</div><div style="font-size:13px;line-height:1.7;color:var(--text);background:var(--surface2);border-radius:8px;padding:12px;border:1px solid var(--border);white-space:pre-wrap">${escHtml(s.notes)}</div></div>`:''}
+    ${s.images&&s.images.length?`<div class="wl-detail-section"><div class="wl-detail-label">Charts (${s.images.length})</div><div style="display:grid;grid-template-columns:1fr 1fr;gap:7px">${s.images.map(src=>`<img src="${src}" style="width:100%;border-radius:7px;border:1px solid var(--border2);cursor:zoom-in" onclick="openLightbox('${src}')"/>`).join('')}</div></div>`:''}
+    <div class="wl-detail-section">
+      <div class="wl-detail-label">Update Status</div>
+      <div style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:12px" id="wlDetailStatusBtns">
+        ${Object.entries(WL_STATUS_LABELS).map(([k,v])=>`<div class="wl-status-btn${s.status===k?' active':''}" data-status="${k}" onclick="quickUpdateStatus('${id}','${k}')">${v}</div>`).join('')}
+      </div>
+    </div>
+    <div class="wl-detail-section">
+      <div class="wl-detail-label">Comments (${comments.length})</div>
+      <div class="wl-comments" id="wlCommentsList">
+        ${comments.length?comments.map(c=>`<div class="wl-comment"><div class="wl-comment-meta">${new Date(c.ts).toLocaleString()}</div><div class="wl-comment-text">${escHtml(c.text)}</div></div>`).join(''):'<div style="font-size:12px;color:var(--muted);font-style:italic">No comments yet. Add your latest update below.</div>'}
+      </div>
+      <div class="wl-comment-input-row">
+        <textarea class="wl-comment-input" id="wlCommentInput" placeholder="Add update or observation..." rows="2"></textarea>
+        <button class="btn btn-accent btn-sm" style="align-self:flex-end" onclick="addComment('${id}')">Post</button>
+      </div>
+    </div>
+    <div style="font-size:10px;color:var(--muted);margin-top:8px">Added ${new Date(s.createdAt).toLocaleDateString()} · Updated ${new Date(s.updatedAt).toLocaleDateString()}</div>`;
+}
+
+function quickUpdateStatus(id, status){
+  const i=allSetups.findIndex(s=>s.id===id); if(i<0) return;
+  allSetups[i].status=status; allSetups[i].updatedAt=Date.now();
+  saveSetupFB(allSetups[i]);
+  renderWatchlist();
+  renderWlDetail(id);
+}
+
+function addComment(id){
+  const input=document.getElementById('wlCommentInput');
+  const text=input.value.trim(); if(!text) return;
+  const i=allSetups.findIndex(s=>s.id===id); if(i<0) return;
+  if(!allSetups[i].comments) allSetups[i].comments=[];
+  allSetups[i].comments.push({text, ts:Date.now()});
+  allSetups[i].updatedAt=Date.now();
+  saveSetupFB(allSetups[i]);
+  input.value='';
+  renderWlDetail(id);
+}
+
+// ── RENDER WATCHLIST ──────────────────────────────────────────────────────
+function toggleWlView(){
+  wlViewMode = wlViewMode==='grid'?'list':'grid';
+  document.getElementById('wlViewToggle').textContent = wlViewMode==='grid'?'⊞ Grid':'☰ List';
+  renderWatchlist();
+}
+
+function renderWatchlist(){
+  let setups=getSetups();
+  const symF=document.getElementById('wlFSym')?.value.trim().toUpperCase();
+  const statusF=document.getElementById('wlFStatus')?.value;
+  const prioF=document.getElementById('wlFPriority')?.value;
+  const tfF=document.getElementById('wlFTF')?.value;
+  const sortF=document.getElementById('wlFSort')?.value||'date-desc';
+
+  if(symF) setups=setups.filter(s=>s.sym.includes(symF));
+  if(statusF) setups=setups.filter(s=>s.status===statusF);
+  if(prioF) setups=setups.filter(s=>s.priority===prioF);
+  if(tfF) setups=setups.filter(s=>s.tf===tfF);
+
+  const prioOrder={high:0,medium:1,low:2};
+  setups.sort((a,b)=>{
+    if(sortF==='priority') return prioOrder[a.priority]-prioOrder[b.priority];
+    if(sortF==='sym-asc') return a.sym.localeCompare(b.sym);
+    if(sortF==='date-asc') return a.createdAt-b.createdAt;
+    return b.createdAt-a.createdAt; // date-desc default
+  });
+
+  document.getElementById('wlCount').textContent=setups.length+' setups';
+  const grid=document.getElementById('wlGrid');
+  const list=document.getElementById('wlList');
+  const empty=document.getElementById('wlEmpty');
+  const listBody=document.getElementById('wlListBody');
+
+  if(!setups.length){ grid.style.display='none'; list.style.display='none'; empty.style.display='block'; return; }
+  empty.style.display='none';
+
+  if(wlViewMode==='grid'){
+    grid.style.display='grid'; list.style.display='none';
+    grid.innerHTML=setups.map(s=>{
+      const rr=wlRR(s.entry,s.target,s.sl,s.dir);
+      const rrClass=rr>=2?'good':rr>=1?'ok':'bad';
+      const liveKey='lp_'+s.id;
+      const cached=wlPriceCache[liveKey];
+      const ltpHtml = cached ? buildLtpHtml(cached, s.entry, s.dir) : `<span class="wl-fetch-btn" onclick="event.stopPropagation();fetchPrice('${s.id}')">⟳ Price</span>`;
+      return `<div class="wl-card" onclick="openWlDetail('${s.id}')">
+        <div class="wl-card-top">
+          <div>
+            <div class="wl-card-sym">${s.sym}</div>
+            <div class="wl-card-badges">
+              <span class="wl-badge ${s.status}">${WL_STATUS_LABELS[s.status]||s.status}</span>
+              ${s.tf?`<span class="wl-badge tf">${s.tf}</span>`:''}
+              <span class="wl-badge ${s.priority}">${WL_PRIORITY_LABELS[s.priority]||s.priority}</span>
+            </div>
+          </div>
+          <div id="lp_${s.id}" style="text-align:right">${ltpHtml}</div>
+        </div>
+        ${s.images&&s.images[0]?`<img src="${s.images[0]}" class="wl-card-img" onclick="event.stopPropagation();openLightbox('${s.images[0]}')"/>`:''}
+        <div class="wl-card-meta">
+          ${s.entry?`<span class="wl-meta-item">Entry <b>${CS()}${s.entry}</b></span>`:''}
+          ${s.target?`<span class="wl-meta-item">Target <b style="color:var(--accent)">${CS()}${s.target}</b></span>`:''}
+          ${s.sl?`<span class="wl-meta-item">SL <b style="color:var(--danger)">${CS()}${s.sl}</b></span>`:''}
+        </div>
+        ${s.notes?`<div class="wl-card-note">${escHtml(s.notes)}</div>`:''}
+        <div class="wl-card-footer">
+          <span>${s.dir} · ${s.date} ${s.comments?.length?`· 💬${s.comments.length}`:''}</span>
+          ${rr?`<span class="wl-rr ${rrClass}">R:R 1:${rr}</span>`:''}
+        </div>
+      </div>`;
+    }).join('');
+  } else {
+    grid.style.display='none'; list.style.display='block';
+    listBody.innerHTML=setups.map(s=>{
+      const rr=wlRR(s.entry,s.target,s.sl,s.dir);
+      const rrColor=rr>=2?'var(--accent)':rr>=1?'var(--warn)':'var(--danger)';
+      return `<tr onclick="openWlDetail('${s.id}')" style="cursor:pointer">
+        <td style="color:var(--muted)">${s.date}</td>
+        <td class="wl-list-sym">${s.sym}</td>
+        <td style="font-family:var(--font);color:var(--muted)">${s.strat||'—'}</td>
+        <td><span class="wl-badge tf">${s.tf||'—'}</span></td>
+        <td>${s.entry?CS()+s.entry:'—'}</td>
+        <td style="color:var(--accent)">${s.target?CS()+s.target:'—'}</td>
+        <td style="color:var(--danger)">${s.sl?CS()+s.sl:'—'}</td>
+        <td>${rr?`<span style="color:${rrColor};font-family:var(--mono);font-weight:700">1:${rr}</span>`:'—'}</td>
+        <td><span class="wl-badge ${s.priority}">${WL_PRIORITY_LABELS[s.priority]}</span></td>
+        <td><span class="wl-badge ${s.status}">${WL_STATUS_LABELS[s.status]}</span></td>
+        <td><div style="display:flex;gap:4px">
+          <button class="btn btn-ghost btn-sm" onclick="event.stopPropagation();openWlModal('${s.id}')">Edit</button>
+          <button class="btn btn-danger btn-sm" onclick="event.stopPropagation();deleteSetup('${s.id}')">Del</button>
+        </div></td>
+      </tr>`;
+    }).join('');
+  }
+}
+
+function deleteSetup(id){
+  if(!confirm('Delete this setup?')) return;
+  allSetups=allSetups.filter(s=>s.id!==id);
+  deleteSetupFB(id);
+  renderWatchlist();
+}
+
+// Watchlist images
+let wlPasteActive=false;
+function handleWlImages(input){
+  Array.from(input.files).forEach(f=>{const r=new FileReader();r.onload=e=>{wlImages.push(e.target.result);renderWlImgPreviews();};r.readAsDataURL(f);});
+}
+function renderWlImgPreviews(){
+  const row=document.getElementById('wlImgPreviewRow'); if(!row) return;
+  row.innerHTML='';
+  wlImages.forEach((src,i)=>{
+    const w=document.createElement('div');w.className='img-preview-wrap';
+    w.innerHTML=`<img src="${src}" class="img-preview" onclick="openLightbox('${src}')"/><button class="img-remove-btn" onclick="wlImages.splice(${i},1);renderWlImgPreviews()">✕</button>`;
+    row.appendChild(w);
+  });
+}
+
+// Paste image in wl modal
+document.addEventListener('paste',e=>{
+  if(!document.getElementById('wlModalOverlay').classList.contains('open')) return;
+  const items=e.clipboardData?.items; if(!items) return;
+  for(const item of items){ if(item.type.startsWith('image/')){const r=new FileReader();r.onload=ev=>{wlImages.push(ev.target.result);renderWlImgPreviews();};r.readAsDataURL(item.getAsFile());break;} }
+},true); // use capture to avoid conflict with trade modal paste
+
+// ── LIVE PRICE & SYMBOL SEARCH ────────────────────────────────────────────
+const wlPriceCache = {}; // id → {price, change, changePct, currency}
+let symSearchTimer = null;
+
+// Map common NSE symbols/indices to Yahoo Finance tickers
+const NSE_MAP = {
+  'NIFTY':'%5ENSEI','NIFTY50':'%5ENSEI','BANKNIFTY':'%5ENSEBANK',
+  'SENSEX':'%5EBSESN','NIFTYMIDCAP':'%5ENSMIDCP',
+  'NIFTYNEXT50':'%5ENSMIDCP50','NIFTYIT':'%5ECNXIT',
+  'USDINR':'INR%3DX','EURINR':'EURINR%3DX',
+  'BTC':'BTC-USD','ETH':'ETH-USD','SOL':'SOL-USD',
+  'BNB':'BNB-USD','XRP':'XRP-USD','DOGE':'DOGE-USD',
+};
+
+function yfSymbol(sym){
+  const upper = sym.toUpperCase();
+  if(NSE_MAP[upper]) return NSE_MAP[upper];
+  // crypto detection
+  if(['BTC','ETH','SOL','BNB','XRP','DOGE','ADA','MATIC','AVAX','DOT'].some(c=>upper.startsWith(c))) return upper+'-USD';
+  // Indian stock — append .NS
+  return upper+'.NS';
+}
+
+function buildLtpHtml(data, entry, dir){
+  const {price, changePct, currency} = data;
+  const changeClass = changePct >= 0 ? 'up' : 'down';
+  const changeSign  = changePct >= 0 ? '+' : '';
+  let toEntryHtml = '';
+  if(entry && price){
+    const diff = ((entry - price) / price) * 100;
+    const absDiff = Math.abs(diff).toFixed(1);
+    if(dir==='LONG'){
+      if(price >= entry) toEntryHtml = `<span class="wl-to-entry above">Above entry +${((price-entry)/entry*100).toFixed(1)}%</span>`;
+      else toEntryHtml = `<span class="wl-to-entry ${absDiff<=2?'near':'far'}">${absDiff}% to entry</span>`;
+    } else {
+      if(price <= entry) toEntryHtml = `<span class="wl-to-entry above">Below entry ${((entry-price)/entry*100).toFixed(1)}%</span>`;
+      else toEntryHtml = `<span class="wl-to-entry ${absDiff<=2?'near':'far'}">${absDiff}% to entry</span>`;
+    }
+  }
+  const sym = currency==='INR'?'₹':'$';
+  return `<div class="wl-price-live">
+    <div class="wl-ltp">${sym}${Number(price).toLocaleString('en-IN',{minimumFractionDigits:2,maximumFractionDigits:2})}</div>
+    <div class="wl-ltp-change ${changeClass}">${changeSign}${changePct?.toFixed(2)}%</div>
+    ${toEntryHtml}
+  </div>`;
+}
+
+async function fetchPrice(setupId){
+  const s = allSetups.find(x=>x.id===setupId); if(!s) return;
+  const el = document.getElementById('lp_'+setupId);
+  if(el) el.innerHTML = `<span style="font-size:11px;color:var(--muted)">Loading...</span>`;
+
+  // Use the stored yf_sym if available, else derive it
+  const ticker = s.yfSym || yfSymbol(s.sym);
+  try{
+    const url = `https://query1.finance.yahoo.com/v8/finance/quote?symbols=${ticker}&fields=regularMarketPrice,regularMarketChangePercent,currency`;
+    const res = await fetch(url);
+    const data = await res.json();
+    const q = data?.quoteResponse?.result?.[0];
+    if(!q) throw new Error('No data');
+    const priceData = {
+      price: q.regularMarketPrice,
+      changePct: q.regularMarketChangePercent,
+      currency: q.currency||'INR',
+      ts: Date.now()
+    };
+    wlPriceCache['lp_'+setupId] = priceData;
+    if(el) el.innerHTML = buildLtpHtml(priceData, s.entry, s.dir);
+  } catch(e){
+    if(el) el.innerHTML = `<span class="wl-fetch-btn" onclick="event.stopPropagation();fetchPrice('${setupId}')" title="${e.message}">⟳ Retry</span>`;
+  }
+}
+
+function fetchAllPrices(){
+  getSetups().forEach(s => fetchPrice(s.id));
+}
+
+// Symbol search using Yahoo Finance search endpoint
+async function searchWlSymbol(query){
+  const res = document.getElementById('wlSymResults');
+  if(!query || query.length < 2){ res.classList.remove('open'); return; }
+  clearTimeout(symSearchTimer);
+  symSearchTimer = setTimeout(async ()=>{
+    res.innerHTML = `<div class="sym-result-item" style="color:var(--muted)">Searching...</div>`;
+    res.classList.add('open');
+    try{
+      const url = `https://query1.finance.yahoo.com/v1/finance/search?q=${encodeURIComponent(query)}&quotesCount=8&newsCount=0&enableFuzzyQuery=false&region=IN&lang=en-IN`;
+      const data = await (await fetch(url)).json();
+      const quotes = (data.quotes||[]).filter(q=>['EQUITY','INDEX','CRYPTOCURRENCY','ETF','MUTUALFUND'].includes(q.quoteType));
+      if(!quotes.length){ res.innerHTML=`<div class="sym-result-item" style="color:var(--muted)">No results. Type exact symbol (e.g. RELIANCE, ^NSEI)</div>`; return; }
+      res.innerHTML = quotes.map(q=>`
+        <div class="sym-result-item" onclick="selectWlSym('${q.symbol}','${(q.shortname||q.longname||'').replace(/'/g,'')}')">
+          <div>
+            <span class="wl-sym-ticker">${q.symbol}</span>
+            <div class="sym-result-name">${q.shortname||q.longname||''} · ${q.exchange||''}</div>
+          </div>
+          <span style="font-size:10px;color:var(--muted)">${q.quoteType}</span>
+        </div>`).join('');
+    } catch(e){
+      res.innerHTML=`<div class="sym-result-item" style="color:var(--muted)">Search unavailable. Enter symbol manually.</div>`;
+    }
+  }, 350);
+}
+
+function selectWlSym(yfTicker, name){
+  // Convert YF ticker to display symbol (strip .NS, .BO etc)
+  const displaySym = yfTicker.replace(/\.(NS|BO|BSE)$/,'').replace(/^%5E/,'^');
+  document.getElementById('wl_sym').value = displaySym;
+  document.getElementById('wl_yf_sym').value = yfTicker;
+  document.getElementById('wlSymResults').classList.remove('open');
+}
+
+// Close search on outside click
+document.addEventListener('click', e=>{
+  const wrap = document.querySelector('.sym-search-wrap');
+  if(wrap && !wrap.contains(e.target)) document.getElementById('wlSymResults')?.classList.remove('open');
+});
+
+// Store yfSym when saving setup
 // ── INIT ───────────────────────────────────────────────────────────────────
-['modalOverlay','confirmOverlay','backupOverlay'].forEach(id=>{
+['modalOverlay','confirmOverlay','backupOverlay','wlModalOverlay','wlDetailOverlay'].forEach(id=>{
   document.getElementById(id).addEventListener('click',e=>{if(e.target===document.getElementById(id))document.getElementById(id).classList.remove('open');});
 });
 setSyncStatus('syncing','Connecting...');
