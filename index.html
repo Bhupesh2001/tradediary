@@ -581,7 +581,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:14
           <select class="filter-select" id="fStrategy" onchange="renderDayPanel()"><option value="">All strategies</option></select>
           <select class="filter-select" id="fSort" onchange="renderDayPanel()"><option value="date-desc">Date ↓</option><option value="date-asc">Date ↑</option><option value="pnl-desc">P&L ↓</option><option value="pnl-asc">P&L ↑</option></select>
         </div>
-        <div style="overflow-x:auto"><table class="trade-table"><thead><tr><th>Date</th><th>Symbol</th><th>Dir</th><th>Entry</th><th>Exit</th><th>P&L</th><th>Emotion</th><th>Notes</th><th>Actions</th></tr></thead><tbody id="dayTradesTbody"></tbody></table></div>
+        <div style="overflow-x:auto"><table class="trade-table"><thead><tr><th>Date</th><th>Symbol</th><th>Dir</th><th>Entry</th><th>Exit</th><th>Qty</th><th>P&L</th><th>Emotion</th><th>Strategy</th><th>Notes</th><th>Actions</th></tr></thead><tbody id="dayTradesTbody"></tbody></table></div>
       </div>
     </div>
 
@@ -2107,10 +2107,12 @@ function buildLtpHtml(data, entry, dir){
 }
 
 // ── LIVE PRICE ENGINE ─────────────────────────────────────────────────────
-// Twelve Data: free, 8 req/min, works for NSE stocks & indices, proper CORS
-// CoinGecko: free, no key, proper CORS, crypto only
-// Get your free Twelve Data key at: https://twelvedata.com (free = 800 calls/day)
-const TWELVE_DATA_KEY = 'd7a31891428041f98de2ce7d8ccd1574'; // ← Replace with your free key from twelvedata.com
+// For NSE stocks: deploy free API from https://github.com/0xramm/Indian-Stock-Market-API
+// on Render.com (free) and paste your URL below.
+// For crypto: CoinGecko (free, no key, works from browser)
+
+// ← Paste your Render.com URL here after deploying (see setup instructions)
+const NSE_API_BASE = 'https://YOUR-APP.onrender.com';
 
 const CRYPTO_IDS = {
   'BTC':'bitcoin','ETH':'ethereum','SOL':'solana','BNB':'binancecoin',
@@ -2118,7 +2120,6 @@ const CRYPTO_IDS = {
   'AVAX':'avalanche-2','DOT':'polkadot','LINK':'chainlink','LTC':'litecoin',
   'UNI':'uniswap','ATOM':'cosmos','TRX':'tron'
 };
-
 function isCrypto(sym){ return !!CRYPTO_IDS[sym.toUpperCase()]; }
 
 async function fetchPrice(setupId){
@@ -2129,45 +2130,47 @@ async function fetchPrice(setupId){
   try{
     let priceData;
     if(isCrypto(sym)){
-      // CoinGecko — free, no key, no CORS issues
+      // CoinGecko — free, no key, proper CORS
       const cgId = CRYPTO_IDS[sym];
-      const res = await fetch(`https://api.coingecko.com/api/v3/simple/price?ids=${cgId}&vs_currencies=usd&include_24hr_change=true`, {signal:AbortSignal.timeout(8000)});
+      const res = await fetch(
+        `https://api.coingecko.com/api/v3/simple/price?ids=${cgId}&vs_currencies=usd&include_24hr_change=true`,
+        {signal: AbortSignal.timeout(8000)}
+      );
       const data = await res.json();
       const coin = data[cgId];
       if(!coin) throw new Error('Coin not found');
-      priceData = { price: coin.usd, changePct: coin.usd_24h_change, currency: 'USD' };
+      priceData = {price: coin.usd, changePct: coin.usd_24h_change, currency:'USD'};
     } else {
-      // Twelve Data — works for NSE stocks, indices
-      // Map common index names
-      const tdSym = {'NIFTY':'NIFTY 50','NIFTY50':'NIFTY 50','BANKNIFTY':'NIFTY BANK','SENSEX':'BSE SENSEX'}[sym] || sym;
-      const exchange = ['NIFTY','NIFTY50','BANKNIFTY','SENSEX','NIFTYMIDCAP'].includes(sym) ? '' : '&exchange=NSE';
-      const url = `https://api.twelvedata.com/price?symbol=${encodeURIComponent(tdSym)}${exchange}&apikey=${TWELVE_DATA_KEY}`;
-      const res = await fetch(url, {signal:AbortSignal.timeout(8000)});
+      // NSE/BSE via self-hosted API
+      if(NSE_API_BASE.includes('YOUR-APP')){
+        throw new Error('NSE API not configured. Deploy from github.com/0xramm/Indian-Stock-Market-API on Render.com and update NSE_API_BASE in index.html');
+      }
+      const res = await fetch(
+        `${NSE_API_BASE}/stock?symbol=${sym}&res=num`,
+        {signal: AbortSignal.timeout(8000)}
+      );
       const data = await res.json();
-      if(data.status==='error' || !data.price) throw new Error(data.message||'No price');
-      // Get change % with a second call
-      const url2 = `https://api.twelvedata.com/quote?symbol=${encodeURIComponent(tdSym)}${exchange}&apikey=${TWELVE_DATA_KEY}`;
-      const res2 = await fetch(url2, {signal:AbortSignal.timeout(8000)});
-      const data2 = await res2.json();
+      if(data.status !== 'success') throw new Error(data.message||'API error');
       priceData = {
-        price: parseFloat(data.price),
-        changePct: data2.percent_change ? parseFloat(data2.percent_change) : null,
+        price: data.data.last_price,
+        changePct: data.data.percent_change,
         currency: 'INR'
       };
     }
     wlPriceCache['lp_'+setupId] = {...priceData, ts:Date.now()};
     if(el) el.innerHTML = buildLtpHtml(priceData, s.entry, s.dir);
   } catch(e){
-    if(el) el.innerHTML = `<span class="wl-fetch-btn" onclick="event.stopPropagation();fetchPrice('${setupId}')" title="${e.message}">⟳ Retry</span>`;
+    const msg = e.message.includes('NSE_API_BASE') ? '⚙ Setup needed' : '⟳ Retry';
+    const title = e.message.replace(/"/g,"'");
+    if(el) el.innerHTML = `<span class="wl-fetch-btn" onclick="event.stopPropagation();fetchPrice('${setupId}')" title="${title}">${msg}</span>`;
   }
 }
 
 function fetchAllPrices(){
-  // Stagger requests to avoid rate limit (8/min on free Twelve Data)
-  getSetups().forEach((s,i) => setTimeout(()=>fetchPrice(s.id), i*500));
+  getSetups().forEach((s,i) => setTimeout(()=>fetchPrice(s.id), i*300));
 }
 
-// Symbol search — use Twelve Data symbol search (CORS friendly)
+// Symbol search
 async function searchWlSymbol(query){
   const res = document.getElementById('wlSymResults');
   if(!query || query.length < 2){ res.classList.remove('open'); return; }
@@ -2176,36 +2179,43 @@ async function searchWlSymbol(query){
     res.innerHTML = `<div class="sym-result-item" style="color:var(--muted)">Searching...</div>`;
     res.classList.add('open');
     const upper = query.toUpperCase();
-    // Check crypto first (instant, no API needed)
+    // Crypto matches (instant, no API)
     const cryptoMatches = Object.keys(CRYPTO_IDS).filter(k=>k.startsWith(upper));
+    // Try NSE search API
+    let stockRows = '';
     try{
-      const url = `https://api.twelvedata.com/symbol_search?symbol=${encodeURIComponent(query)}&exchange=NSE&outputsize=10&apikey=${TWELVE_DATA_KEY}`;
-      const data = await (await fetch(url, {signal:AbortSignal.timeout(6000)})).json();
-      const stocks = (data.data||[]).slice(0,8);
-      const cryptoRows = cryptoMatches.map(k=>`
-        <div class="sym-result-item" onclick="selectWlSym('${k}','${k}')">
-          <div><span class="wl-sym-ticker">${k}</span><div class="sym-result-name">${k}/USD · Crypto</div></div>
-          <span style="font-size:10px;color:var(--accent2);background:rgba(56,189,248,.1);padding:1px 5px;border-radius:3px">CRYPTO</span>
-        </div>`).join('');
-      const stockRows = stocks.map(s=>{
-        const sym = s.symbol; const name = (s.instrument_name||'').replace(/['"]/g,'');
-        return `<div class="sym-result-item" onclick="selectWlSym('${sym}','${name}')">
-          <div><span class="wl-sym-ticker">${sym}</span><div class="sym-result-name">${name} · ${s.exchange||'NSE'}</div></div>
-          <span style="font-size:10px;color:var(--muted);background:var(--surface3);padding:1px 5px;border-radius:3px">${s.instrument_type||'EQUITY'}</span>
-        </div>`;
-      }).join('');
-      const combined = cryptoRows + stockRows;
-      res.innerHTML = combined || `<div class="sym-result-item" style="color:var(--muted)">No results for "${query}"</div>`;
-    } catch(e){
-      // Offline fallback — show crypto matches + common NSE stocks
-      const commonNSE = ['RELIANCE','TCS','INFY','HDFCBANK','ICICIBANK','SBIN','WIPRO','ITC','NIFTY','BANKNIFTY','LTIM','HINDUNILVR','BAJFINANCE','AXISBANK','MARUTI'];
-      const nseMatches = commonNSE.filter(s=>s.startsWith(upper));
-      res.innerHTML = [
-        ...cryptoMatches.map(k=>`<div class="sym-result-item" onclick="selectWlSym('${k}','${k}')"><span class="wl-sym-ticker">${k}</span> <span style="font-size:10px;color:var(--accent2)">Crypto</span></div>`),
-        ...nseMatches.map(s=>`<div class="sym-result-item" onclick="selectWlSym('${s}','${s}')"><span class="wl-sym-ticker">${s}</span> <span style="font-size:10px;color:var(--muted)">NSE</span></div>`)
-      ].join('') || `<div class="sym-result-item" style="color:var(--muted)">Type exact symbol, e.g. RELIANCE, ITC, BTC</div>`;
+      if(!NSE_API_BASE.includes('YOUR-APP')){
+        const data = await (await fetch(`${NSE_API_BASE}/search?query=${encodeURIComponent(query)}`, {signal:AbortSignal.timeout(5000)})).json();
+        const results = (data.results||[]).slice(0,8);
+        stockRows = results.map(r=>{
+          const sym = r.symbol; const name = (r.company_name||'').replace(/['"]/g,'');
+          return `<div class="sym-result-item" onclick="selectWlSym('${sym}','${name}')">
+            <div><span class="wl-sym-ticker">${sym}</span><div class="sym-result-name">${name}</div></div>
+            <span style="font-size:10px;color:var(--muted);background:var(--surface3);padding:1px 5px;border-radius:3px">NSE</span>
+          </div>`;
+        }).join('');
+      }
+    } catch(e){ /* fallback below */ }
+    // Common NSE fallback list
+    if(!stockRows){
+      const common = ['RELIANCE','TCS','INFY','HDFCBANK','ICICIBANK','SBIN','WIPRO','ITC','NIFTY','BANKNIFTY','LTIM','HINDUNILVR','BAJFINANCE','AXISBANK','MARUTI','TATAMOTORS','ADANIENT','NESTLEIND','ASIANPAINT','SUNPHARMA'];
+      stockRows = common.filter(s=>s.includes(upper)).map(s=>
+        `<div class="sym-result-item" onclick="selectWlSym('${s}','${s}')">
+          <span class="wl-sym-ticker">${s}</span>
+          <span style="font-size:10px;color:var(--muted)">NSE</span>
+        </div>`
+      ).join('');
     }
-  }, 350);
+    const cryptoRows = cryptoMatches.map(k=>
+      `<div class="sym-result-item" onclick="selectWlSym('${k}','${k}')">
+        <span class="wl-sym-ticker" style="color:var(--accent2)">${k}</span>
+        <span style="font-size:10px;color:var(--accent2)">Crypto</span>
+      </div>`
+    ).join('');
+    const combined = cryptoRows + stockRows;
+    res.innerHTML = combined ||
+      `<div class="sym-result-item" style="color:var(--muted)">No match. Type exact symbol e.g. RELIANCE, ITC, BTC</div>`;
+  }, 300);
 }
 
 function selectWlSym(sym, name){
