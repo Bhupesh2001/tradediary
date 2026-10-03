@@ -31,6 +31,7 @@ function renderAnalytics(){
   const ctx=document.getElementById('cumChart').getContext('2d');
   const g=ctx.createLinearGradient(0,0,0,190);g.addColorStop(0,'rgba(56,189,248,.25)');g.addColorStop(1,'rgba(56,189,248,0)');
   cumChart=new Chart(ctx,{type:'line',data:{labels:cl,datasets:[{data:cd,borderColor:'#38bdf8',backgroundColor:g,borderWidth:2,fill:true,tension:.4,pointRadius:2}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{color:'#7a7f95',font:{size:9}},grid:{color:'rgba(255,255,255,.04)'}},y:{ticks:{color:'#7a7f95',font:{size:9},callback:v=>s+v},grid:{color:'rgba(255,255,255,.04)'}}}}});
+  renderPerf();
 }
 
 // ── PSYCHOLOGY ─────────────────────────────────────────────────────────────

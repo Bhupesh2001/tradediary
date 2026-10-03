@@ -127,18 +127,18 @@
     <!-- DASHBOARD -->
     <div class="content" id="pageDashboard">
       <div class="stats-grid">
-        <div class="stat-card"><div class="stat-label">Net P&L</div><div class="stat-value green" id="statPnl">0</div><div class="stat-sub" id="statPnlSub">—</div></div>
-        <div class="stat-card"><div class="stat-label">Win Rate</div><div class="stat-value blue" id="statWin">0%</div><div class="stat-sub" id="statWinSub">0/0</div></div>
-        <div class="stat-card"><div class="stat-label">Avg R</div><div class="stat-value" id="statR">0R</div><div class="stat-sub">risk-adj.</div></div>
-        <div class="stat-card"><div class="stat-label">Profit Factor</div><div class="stat-value" id="statPF">—</div><div class="stat-sub">win/loss</div></div>
+        <div class="stat-card"><div class="stat-label" data-info="netPnl">Net P&L</div><div class="stat-value green" id="statPnl">0</div><div class="stat-sub" id="statPnlSub">—</div></div>
+        <div class="stat-card"><div class="stat-label" data-info="winRate">Win Rate</div><div class="stat-value blue" id="statWin">0%</div><div class="stat-sub" id="statWinSub">0/0</div></div>
+        <div class="stat-card"><div class="stat-label" data-info="avgR">Avg R</div><div class="stat-value" id="statR">0R</div><div class="stat-sub">risk-adj.</div></div>
+        <div class="stat-card"><div class="stat-label" data-info="profitFactor">Profit Factor</div><div class="stat-value" id="statPF">—</div><div class="stat-sub">win/loss</div></div>
       </div>
       <div class="row2">
         <div class="card">
-          <div class="card-header"><span class="card-title">Equity Curve</span><span class="badge badge-green" id="eqBadge">+0</span></div>
+          <div class="card-header"><span class="card-title" data-info="equityCurve">Equity Curve</span><span class="badge badge-green" id="eqBadge">+0</span></div>
           <div class="chart-wrap"><canvas id="equityChart"></canvas></div>
         </div>
         <div class="card">
-          <div class="card-header"><span class="card-title">Win/Loss</span></div>
+          <div class="card-header"><span class="card-title" data-info="winLoss">Win/Loss</span></div>
           <div class="chart-wrap" style="height:140px"><canvas id="pieChart"></canvas></div>
           <div style="display:flex;gap:12px;margin-top:8px;justify-content:center;font-size:12px">
             <span style="color:var(--accent)">▲ <b id="winCount">0</b></span>
@@ -149,7 +149,7 @@
       </div>
       <div class="card">
         <div class="card-header">
-          <span class="card-title">Activity Heatmap</span>
+          <span class="card-title" data-info="heatmap">Activity Heatmap</span>
           <div class="hm-nav">
             <button onclick="hmPrevMonth()">‹</button>
             <span class="hm-month-label" id="hmMonthLabel"></span>
@@ -170,7 +170,7 @@
           <select class="filter-select" id="fStrategy" onchange="renderDayPanel()"><option value="">All strategies</option></select>
           <select class="filter-select" id="fSort" onchange="renderDayPanel()"><option value="date-desc">Date ↓</option><option value="date-asc">Date ↑</option><option value="pnl-desc">P&L ↓</option><option value="pnl-asc">P&L ↑</option></select>
         </div>
-        <div style="overflow-x:auto"><table class="trade-table"><thead><tr><th>Date</th><th>Symbol</th><th>Dir</th><th>Entry</th><th>Exit</th><th>Qty</th><th>P&L</th><th>Emotion</th><th>Strategy</th><th>Notes</th><th>Actions</th></tr></thead><tbody id="dayTradesTbody"></tbody></table></div>
+        <div style="overflow-x:auto"><table class="trade-table"><thead><tr><th>Date</th><th>Symbol</th><th>Dir</th><th>Entry</th><th>Exit</th><th>Qty</th><th data-info="pnlCol">P&L</th><th>Emotion</th><th>Strategy</th><th>Notes</th><th>Actions</th></tr></thead><tbody id="dayTradesTbody"></tbody></table></div>
       </div>
     </div>
 
@@ -217,31 +217,40 @@
           <select class="filter-select" id="logFEmotion" onchange="renderLog()"><option value="">All emotions</option><option value="calm">Calm</option><option value="fear">Fear</option><option value="greed">Greed</option><option value="revenge">Revenge</option><option value="confident">Confident</option><option value="disciplined">Disciplined</option></select>
           <select class="filter-select" id="logFSort" onchange="renderLog()"><option value="date-desc">Date ↓</option><option value="date-asc">Date ↑</option><option value="pnl-desc">P&L ↓</option><option value="pnl-asc">P&L ↑</option><option value="sym-asc">A-Z</option></select>
         </div>
-        <div style="overflow-x:auto"><table class="trade-table"><thead><tr><th>Date</th><th>Symbol</th><th>Dir</th><th>Entry</th><th>Exit</th><th>Qty</th><th>P&L</th><th>Emotion</th><th>Strategy</th><th>Notes</th><th>Actions</th></tr></thead><tbody id="tradeTableBody"></tbody></table></div>
+        <div style="overflow-x:auto"><table class="trade-table"><thead><tr><th>Date</th><th>Symbol</th><th>Dir</th><th>Entry</th><th>Exit</th><th>Qty</th><th data-info="pnlCol">P&L</th><th>Emotion</th><th>Strategy</th><th>Notes</th><th>Actions</th></tr></thead><tbody id="tradeTableBody"></tbody></table></div>
       </div>
     </div>
 
     <!-- ANALYTICS -->
     <div class="content" id="pageAnalytics" style="display:none">
+      <div class="card" id="perfCard">
+        <div class="card-header">
+          <span class="card-title" data-info="performance">Performance Metrics</span>
+          <label class="cap-label"><span data-info="startCapital">Starting capital <span id="capCur"></span></span>
+            <input class="form-input cap-input" type="number" id="capInput" min="0" step="any" placeholder="optional"/></label>
+        </div>
+        <div id="perfGrid"></div>
+      </div>
+      <div class="card"><div class="card-header"><span class="card-title" data-info="ddChart">Drawdown (Underwater Curve)</span></div><div class="chart-wrap" style="height:190px"><canvas id="ddChart"></canvas></div></div>
       <div class="section-row">
-        <div class="card"><div class="card-header"><span class="card-title">P&L by Strategy</span></div><div class="chart-wrap"><canvas id="stratChart"></canvas></div></div>
-        <div class="card"><div class="card-header"><span class="card-title">P&L by Day of Week</span></div><div class="chart-wrap"><canvas id="dowChart"></canvas></div></div>
+        <div class="card"><div class="card-header"><span class="card-title" data-info="byStrategy">P&L by Strategy</span></div><div class="chart-wrap"><canvas id="stratChart"></canvas></div></div>
+        <div class="card"><div class="card-header"><span class="card-title" data-info="byDow">P&L by Day of Week</span></div><div class="chart-wrap"><canvas id="dowChart"></canvas></div></div>
       </div>
       <div class="card">
-        <div class="card-header"><span class="card-title">P&L by Month</span><span class="badge badge-blue" id="monthChartBadge"></span></div>
+        <div class="card-header"><span class="card-title" data-info="byMonth">P&L by Month</span><span class="badge badge-blue" id="monthChartBadge"></span></div>
         <p style="font-size:11px;color:var(--muted);margin-bottom:8px">Tap a bar → jumps to Trade Log for that month</p>
         <div class="chart-wrap" style="height:220px"><canvas id="monthChart"></canvas></div>
       </div>
-      <div class="card"><div class="card-header"><span class="card-title">Cumulative P&L</span></div><div class="chart-wrap" style="height:190px"><canvas id="cumChart"></canvas></div></div>
+      <div class="card"><div class="card-header"><span class="card-title" data-info="cumPnl">Cumulative P&L</span></div><div class="chart-wrap" style="height:190px"><canvas id="cumChart"></canvas></div></div>
     </div>
 
     <!-- PSYCHOLOGY -->
     <div class="content" id="pagePsychology" style="display:none">
       <div class="section-row">
-        <div class="card"><div class="card-header"><span class="card-title">Emotion Distribution</span></div><div class="chart-wrap" style="height:180px"><canvas id="emotionChart"></canvas></div></div>
-        <div class="card"><div class="card-header"><span class="card-title">Emotion vs P&L</span></div><div id="emotionPnlTable" style="display:flex;flex-direction:column;gap:6px"></div></div>
+        <div class="card"><div class="card-header"><span class="card-title" data-info="emotionDist">Emotion Distribution</span></div><div class="chart-wrap" style="height:180px"><canvas id="emotionChart"></canvas></div></div>
+        <div class="card"><div class="card-header"><span class="card-title" data-info="emotionPnl">Emotion vs P&L</span></div><div id="emotionPnlTable" style="display:flex;flex-direction:column;gap:6px"></div></div>
       </div>
-      <div class="card"><div class="card-header"><span class="card-title">Insights</span></div><div id="psychInsights" style="font-size:13px;line-height:1.9"></div></div>
+      <div class="card"><div class="card-header"><span class="card-title" data-info="insights">Insights</span></div><div id="psychInsights" style="font-size:13px;line-height:1.9"></div></div>
     </div>
 
     <!-- AI -->
@@ -311,7 +320,7 @@
         <!-- List view (hidden by default) -->
         <div id="wlList" style="display:none;overflow-x:auto">
           <table class="trade-table">
-            <thead><tr><th>Date</th><th>Symbol</th><th>Strategy</th><th>TF</th><th>Entry</th><th>Target</th><th>SL</th><th>R:R</th><th>Priority</th><th>Status</th><th>Actions</th></tr></thead>
+            <thead><tr><th>Date</th><th>Symbol</th><th>Strategy</th><th>TF</th><th>Entry</th><th>Target</th><th>SL</th><th data-info="rrCol">R:R</th><th>Priority</th><th>Status</th><th>Actions</th></tr></thead>
             <tbody id="wlListBody"></tbody>
           </table>
         </div>
@@ -383,7 +392,7 @@
       <div class="form-group" id="grp_qty_calc" style="display:none"><label class="form-label">Effective Qty</label><input class="form-input" id="f_qty_calc" readonly style="opacity:.6"/></div>
       <div class="form-group" id="grp_sl2" style="display:none"><label class="form-label">Stop Loss</label><input class="form-input" type="number" id="f_sl2" placeholder="0.00"/></div>
       <div class="form-group full" id="grp_fees">
-        <label class="form-label">Charges &amp; Fees <span id="feeCur" style="text-transform:none;font-weight:400"></span></label>
+        <label class="form-label"><span data-info="fees">Charges &amp; Fees <span id="feeCur" style="text-transform:none;font-weight:400"></span></span></label>
         <div class="fee-row">
           <select class="form-select" id="f_feeSeg">
             <option value="intraday">Equity intraday</option>
@@ -553,11 +562,13 @@
 
 <script src="js/config.js"></script>
 <script src="js/state.js"></script>
+<script src="js/info.js"></script>
 <script src="js/auth.js"></script>
 <script src="js/navigation.js"></script>
 <script src="js/dashboard.js"></script>
 <script src="js/tradelog.js"></script>
 <script src="js/analytics.js"></script>
+<script src="js/metrics.js"></script>
 <script src="js/notes.js"></script>
 <script src="js/trade-modal.js"></script>
 <script src="js/fees.js"></script>

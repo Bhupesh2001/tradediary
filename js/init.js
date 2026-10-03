@@ -3,6 +3,7 @@
   document.getElementById(id).addEventListener('click',e=>{if(e.target===document.getElementById(id))document.getElementById(id).classList.remove('open');});
 });
 setSyncStatus('syncing','Connecting...');
+injectInfoIcons();
 
 // ── SERVICE WORKER ─────────────────────────────────────────────────────────
 if('serviceWorker' in navigator){

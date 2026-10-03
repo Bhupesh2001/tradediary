@@ -6,7 +6,7 @@ let selectedEmotion = '', editingId = null, deleteTargetId = null;
 let tradeImages = [];
 let hmYear = new Date().getFullYear(), hmMonth = new Date().getMonth();
 let selectedDates = new Set(), lastClickedDate = null;
-let eqChart, pieChart, stratChart, dowChart, cumChart, emChart, monthChart;
+let eqChart, pieChart, stratChart, dowChart, cumChart, emChart, monthChart, ddChart;
 let npTrades = [], npIndex = 0;
 let mergeMode = 'merge';
 let currentUID = null;
