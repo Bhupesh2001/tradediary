@@ -11,6 +11,8 @@ function openModal(){
   document.getElementById('f_dir').value='LONG';
   document.getElementById('f_leverage').value='1';
   document.getElementById('f_amount').value='';
+  feesManual=false;document.getElementById('f_fees').value='';
+  document.getElementById('f_feeSeg').value=getFeeSeg();document.getElementById('f_feeRate').value=getFeeRate();
   selectedEmotion='';
   document.querySelectorAll('#emSelectRow .em-tag').forEach(e=>e.classList.remove('selected'));
   populateSymSuggestions();
@@ -35,6 +37,10 @@ function openEditModal(id){
   document.getElementById('f_amount').value=t.amount||'';
   document.getElementById('f_sl2').value=t.sl||'';
   document.getElementById('f_notes').value=t.notes||'';
+  document.getElementById('f_feeSeg').value=t.feeSeg||getFeeSeg();
+  document.getElementById('f_feeRate').value=(t.feeRate??getFeeRate());
+  feesManual=(t.fees===undefined)?true:!!t.feesManual;   // legacy trades stay at 0 unless you press Auto
+  document.getElementById('f_fees').value=(t.fees===undefined)?0:t.fees;
   selectedEmotion=t.emotion||'';
   document.querySelectorAll('#emSelectRow .em-tag').forEach(e=>e.classList.toggle('selected',e.textContent.toLowerCase()===selectedEmotion));
   populateSymSuggestions();
@@ -50,6 +56,9 @@ function toggleProfileFields(){
   document.getElementById('grp_amount').style.display=c?'flex':'none';
   document.getElementById('grp_qty_calc').style.display=c?'flex':'none';
   document.getElementById('grp_sl2').style.display=c?'flex':'none';
+  document.getElementById('f_feeSeg').style.display=c?'none':'';
+  document.getElementById('f_feeRate').style.display=c?'':'none';
+  recalcFees();
 }
 function calcCryptoQty(){
   const entry  = parseFloat(document.getElementById('f_entry').value);
@@ -80,20 +89,24 @@ function saveTrade(){
   const rawTime=document.getElementById('f_time').value.trim();
   const time=rawTime||'23:59';
   if(!sym||!date||isNaN(entry)||isNaN(exit)){alert('Fill Symbol, Date, Entry, Exit.');return;}
-  let qty,sl,leverage,amount,pnl;
+  let qty,sl,leverage,amount,gross,pnl;
   if(currentProfile==='USD'){
     leverage=parseFloat(document.getElementById('f_leverage').value)||1;
     amount=parseFloat(document.getElementById('f_amount').value)||0;
     sl=parseFloat(document.getElementById('f_sl2').value)||0;
     qty=amount>0?(amount*leverage/entry):(parseFloat(document.getElementById('f_qty').value)||1);
-    pnl=+((dir==='LONG'?(exit-entry):(entry-exit))*qty).toFixed(4);
+    gross=+((dir==='LONG'?(exit-entry):(entry-exit))*qty).toFixed(4);
   } else {
     qty=parseFloat(document.getElementById('f_qty').value)||1;
     sl=parseFloat(document.getElementById('f_sl').value)||0;
     leverage=null;amount=null;
-    pnl=Math.round((dir==='LONG'?(exit-entry):(entry-exit))*qty);
+    gross=+((dir==='LONG'?(exit-entry):(entry-exit))*qty).toFixed(2);
   }
-  const obj={id:editingId||uid(),profile:currentProfile,sym,date,time,dir,strat,entry,exit,qty,sl,leverage,amount,notes,emotion,pnl,images:tradeImages};
+  const fees=Math.max(0,parseFloat(document.getElementById('f_fees').value)||0);
+  pnl=+(gross-fees).toFixed(currentProfile==='USD'?4:2);   // pnl = NET
+  const feeSeg=currentProfile==='INR'?document.getElementById('f_feeSeg').value:null;
+  const feeRate=currentProfile==='USD'?(parseFloat(document.getElementById('f_feeRate').value)||0):null;
+  const obj={id:editingId||uid(),profile:currentProfile,sym,date,time,dir,strat,entry,exit,qty,sl,leverage,amount,notes,emotion,pnl,grossPnl:gross,fees,feeSeg,feeRate,feesManual,images:tradeImages};
   if(editingId){const i=allTrades.findIndex(x=>x.id===editingId);if(i>=0)allTrades[i]=obj;}
   else allTrades.push(obj);
   saveTradeFB(obj);

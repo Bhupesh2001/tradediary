@@ -3,6 +3,7 @@ function renderDashboard(){
   const trades=getTrades(),t=getTotals(trades),s=CS();
   document.getElementById('statPnl').textContent=s+Math.abs(t.pnl).toLocaleString();
   document.getElementById('statPnl').className='stat-value '+(t.pnl>=0?'green':'red');
+  document.getElementById('statPnlSub').textContent=t.fees>0?('Gross '+s+Math.abs(t.gross).toLocaleString(undefined,{maximumFractionDigits:2})+(t.gross<0?' loss':'')+' · Charges '+s+t.fees.toLocaleString(undefined,{maximumFractionDigits:2})):'net of charges';
   document.getElementById('statWin').textContent=t.winRate+'%';
   document.getElementById('statWinSub').textContent=t.wins+'/'+t.total;
   document.getElementById('statR').textContent=t.avgR+'R';

@@ -45,6 +45,7 @@ function renderNotesPanel(){
     <div style="display:flex;gap:12px;margin-bottom:12px;flex-wrap:wrap">
       <span style="font-size:12px;color:var(--muted)">Entry <b style="color:var(--text)">${s}${t.entry}</b></span>
       <span style="font-size:12px;color:var(--muted)">Exit <b style="color:var(--text)">${s}${t.exit}</b></span>
+      ${t.fees?`<span style="font-size:12px;color:var(--muted)">Gross <b style="color:var(--text)">${fmtPnl(t.grossPnl??t.pnl)}</b></span><span style="font-size:12px;color:var(--muted)">Charges <b style="color:var(--warn)">${s}${t.fees}</b></span>`:''}
       ${t.sl?`<span style="font-size:12px;color:var(--muted)">SL <b style="color:var(--danger)">${s}${t.sl}</b></span>`:''}
     </div>
     <div class="np-section-label">Notes</div>

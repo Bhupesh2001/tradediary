@@ -28,13 +28,13 @@ function renderPage(p){
 
 // ── STATS ──────────────────────────────────────────────────────────────────
 function getTotals(trades){
-  let pnl=0,wins=0,losses=0,be=0,grossWin=0,grossLoss=0,rSum=0;
+  let pnl=0,wins=0,losses=0,be=0,grossWin=0,grossLoss=0,rSum=0,fees=0,gross=0;
   trades.forEach(t=>{
-    pnl+=t.pnl;
+    pnl+=t.pnl;fees+=t.fees||0;gross+=(t.grossPnl??t.pnl);
     if(t.pnl>0){wins++;grossWin+=t.pnl;}else if(t.pnl<0){losses++;grossLoss+=Math.abs(t.pnl);}else be++;
     if(t.sl&&t.entry){const risk=Math.abs(t.entry-t.sl)*t.qty;if(risk>0)rSum+=t.pnl/risk;}
   });
   const total=trades.length;
-  return{pnl,wins,losses,be,total,grossWin,grossLoss,winRate:total?Math.round((wins/total)*100):0,pf:grossLoss?(grossWin/grossLoss).toFixed(2):'—',avgR:total?(rSum/total).toFixed(2):0};
+  return{pnl,fees,gross,wins,losses,be,total,grossWin,grossLoss,winRate:total?Math.round((wins/total)*100):0,pf:grossLoss?(grossWin/grossLoss).toFixed(2):'—',avgR:total?(rSum/total).toFixed(2):0};
 }
 

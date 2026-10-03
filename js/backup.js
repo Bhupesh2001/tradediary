@@ -1,8 +1,8 @@
 // ── CSV ────────────────────────────────────────────────────────────────────
 function exportCSV(){
   const trades=getTrades();if(!trades.length){alert('No trades.');return;}
-  const headers=['ID','Profile','Symbol','Date','Direction','Entry','Exit','Qty','Amount','Leverage','StopLoss','Strategy','Emotion','P&L','Currency','Notes'];
-  const rows=trades.map(t=>[t.id,t.profile,t.sym,t.date,t.dir,t.entry,t.exit,t.qty?.toFixed?t.qty.toFixed(6):t.qty,t.amount||'',t.leverage||'',t.sl||'',t.strat||'',t.emotion||'',t.pnl,currentProfile==='INR'?'INR':'USD','"'+(t.notes||'').replace(/"/g,'""')+'"']);
+  const headers=['ID','Profile','Symbol','Date','Direction','Entry','Exit','Qty','Amount','Leverage','StopLoss','Strategy','Emotion','Gross P&L','Charges','Net P&L','Currency','Notes'];
+  const rows=trades.map(t=>[t.id,t.profile,t.sym,t.date,t.dir,t.entry,t.exit,t.qty?.toFixed?t.qty.toFixed(6):t.qty,t.amount||'',t.leverage||'',t.sl||'',t.strat||'',t.emotion||'',(t.grossPnl??t.pnl),(t.fees||0),t.pnl,currentProfile==='INR'?'INR':'USD','"'+(t.notes||'').replace(/"/g,'""')+'"']);
   const csv=[headers,...rows].map(r=>r.join(',')).join('\n');
   const blob=new Blob([csv],{type:'text/csv'});
   const url=URL.createObjectURL(blob);

@@ -52,7 +52,7 @@ function renderTradeRows(tbodyId,trades){
       <td><span class="${t.dir==='LONG'?'dir-long':'dir-short'}">${t.dir}</span></td>
       <td>${s}${t.entry}</td><td>${s}${t.exit}</td>
       <td style="color:var(--muted)">${qty}</td>
-      <td class="${t.pnl>=0?'pnl-pos':'pnl-neg'}">${fmtPnl(t.pnl)}</td>
+      <td class="${t.pnl>=0?'pnl-pos':'pnl-neg'}"${t.fees?` title="Gross ${fmtPnl(t.grossPnl??t.pnl)} − charges ${s}${t.fees}"`:''}>${fmtPnl(t.pnl)}${t.fees?`<br><span style="font-size:10px;color:var(--muted);font-weight:400">fees ${s}${t.fees}</span>`:''}</td>
       <td><span class="em-tag ${t.emotion||'neutral'}" style="padding:2px 7px;font-size:10px">${t.emotion||'—'}</span></td>
       <td style="color:var(--muted);font-family:var(--font);font-size:11px">${escHtml(t.strat||'—')}</td>
       <td><button class="notes-btn${hasImg?' has-img':''}" onclick="openNotesPanelAt('${t.id}')">${preview}${hasImg?` 📷${t.images.length}`:''}</button></td>

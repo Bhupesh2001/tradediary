@@ -382,6 +382,23 @@
       <div class="form-group" id="grp_amount" style="display:none"><label class="form-label">Amount ($)</label><input class="form-input" type="number" id="f_amount" placeholder="100" oninput="calcCryptoQty()"/></div>
       <div class="form-group" id="grp_qty_calc" style="display:none"><label class="form-label">Effective Qty</label><input class="form-input" id="f_qty_calc" readonly style="opacity:.6"/></div>
       <div class="form-group" id="grp_sl2" style="display:none"><label class="form-label">Stop Loss</label><input class="form-input" type="number" id="f_sl2" placeholder="0.00"/></div>
+      <div class="form-group full" id="grp_fees">
+        <label class="form-label">Charges &amp; Fees <span id="feeCur" style="text-transform:none;font-weight:400"></span></label>
+        <div class="fee-row">
+          <select class="form-select" id="f_feeSeg">
+            <option value="intraday">Equity intraday</option>
+            <option value="delivery">Equity delivery</option>
+            <option value="futures">Futures</option>
+            <option value="options">Options</option>
+            <option value="none">No charges</option>
+          </select>
+          <input class="form-input" type="number" id="f_feeRate" step="0.001" min="0" placeholder="% per side" title="Fee rate, % per side" style="display:none"/>
+          <input class="form-input" type="number" id="f_fees" step="0.01" min="0" placeholder="0.00"/>
+          <button class="btn btn-ghost btn-sm" type="button" onclick="feesAuto()" title="Recalculate from rates">Auto</button>
+        </div>
+        <div class="fee-note" id="feeBreakdown"></div>
+        <div class="fee-note" id="netPreview" style="color:var(--text)"></div>
+      </div>
       <div class="form-group full">
         <label class="form-label">Emotion</label>
         <div class="em-select-row" id="emSelectRow">
@@ -526,6 +543,10 @@
       </div>
       <div class="import-result" id="importResult"></div>
     </div>
+    <div style="margin:10px 0;padding-top:10px;border-top:1px solid var(--border2)">
+      <button class="btn btn-ghost btn-sm" onclick="applyFeesToOldTrades()">Apply estimated charges to older trades</button>
+      <div style="font-size:11px;color:var(--muted);margin-top:5px">Only affects trades with no charges recorded yet in the current profile.</div>
+    </div>
     <p style="font-size:11px;color:var(--muted);text-align:center">Export on Device A → Import on Device B</p>
   </div>
 </div>
@@ -539,6 +560,7 @@
 <script src="js/analytics.js"></script>
 <script src="js/notes.js"></script>
 <script src="js/trade-modal.js"></script>
+<script src="js/fees.js"></script>
 <script src="js/images.js"></script>
 <script src="js/backup.js"></script>
 <script src="js/ai.js"></script>
