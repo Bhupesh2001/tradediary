@@ -4,11 +4,12 @@ function openModal(){
   document.getElementById('modalTitleText').textContent='Log Trade';
   document.getElementById('saveTradeBtn').textContent='Log Trade';
   ['f_sym','f_strat','f_notes','f_qty','f_sl','f_sl2','f_entry','f_exit','f_qty_calc'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
-  document.getElementById('f_date').value=new Date().toISOString().slice(0,10);
+  document.getElementById('f_date').value=todayStr();
   // set current time as default
   const now=new Date();
   document.getElementById('f_time').value=String(now.getHours()).padStart(2,'0')+':'+String(now.getMinutes()).padStart(2,'0');
   document.getElementById('f_dir').value='LONG';
+  document.getElementById('f_exitTime').value='';
   document.getElementById('f_leverage').value='1';
   document.getElementById('f_amount').value='';
   feesManual=false;document.getElementById('f_fees').value='';
@@ -26,7 +27,8 @@ function openEditModal(id){
   document.getElementById('saveTradeBtn').textContent='Save';
   document.getElementById('f_sym').value=t.sym;
   document.getElementById('f_date').value=t.date;
-  document.getElementById('f_time').value=t.time||'';
+  document.getElementById('f_time').value=(t.time&&t.time!=='23:59')?t.time:'';
+  document.getElementById('f_exitTime').value=t.exitTime||'';
   document.getElementById('f_dir').value=t.dir;
   document.getElementById('f_strat').value=t.strat||'';
   document.getElementById('f_entry').value=t.entry;
@@ -88,6 +90,7 @@ function saveTrade(){
   // time: if blank, assign 23:59 so it sorts last for that date
   const rawTime=document.getElementById('f_time').value.trim();
   const time=rawTime||'23:59';
+  const exitTime=rawTime?(document.getElementById('f_exitTime').value||''):'';
   if(!sym||!date||isNaN(entry)||isNaN(exit)){alert('Fill Symbol, Date, Entry, Exit.');return;}
   let qty,sl,leverage,amount,gross,pnl;
   if(currentProfile==='USD'){
@@ -106,7 +109,7 @@ function saveTrade(){
   pnl=+(gross-fees).toFixed(currentProfile==='USD'?4:2);   // pnl = NET
   const feeSeg=currentProfile==='INR'?document.getElementById('f_feeSeg').value:null;
   const feeRate=currentProfile==='USD'?(parseFloat(document.getElementById('f_feeRate').value)||0):null;
-  const obj={id:editingId||uid(),profile:currentProfile,sym,date,time,dir,strat,entry,exit,qty,sl,leverage,amount,notes,emotion,pnl,grossPnl:gross,fees,feeSeg,feeRate,feesManual,images:tradeImages};
+  const obj={id:editingId||uid(),profile:currentProfile,sym,date,time,dir,strat,entry,exit,qty,sl,leverage,amount,notes,emotion,pnl,grossPnl:gross,fees,feeSeg,feeRate,feesManual,exitTime,images:tradeImages};
   if(editingId){const i=allTrades.findIndex(x=>x.id===editingId);if(i>=0)allTrades[i]=obj;}
   else allTrades.push(obj);
   saveTradeFB(obj);

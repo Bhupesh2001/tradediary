@@ -5,16 +5,16 @@ function closeSidebar(){document.getElementById('sidebar').classList.remove('mob
 // ── NAVIGATION ─────────────────────────────────────────────────────────────
 function setPage(p){
   currentPage=p;
-  ['dashboard','log','analytics','psychology','ai','watchlist'].forEach(id=>{
+  ['dashboard','log','analytics','psychology','ai','watchlist','rules'].forEach(id=>{
     const el=document.getElementById('page'+id.charAt(0).toUpperCase()+id.slice(1));
     if(el){el.style.display=id===p?'flex':'none';if(id===p)el.style.flexDirection='column';}
   });
-  document.querySelectorAll('.nav-item').forEach((el,i)=>el.classList.toggle('active',['dashboard','log','analytics','psychology','ai','watchlist'][i]===p));
-  ['dashboard','log','analytics','psychology','ai','watchlist'].forEach(id=>{
+  document.querySelectorAll('.nav-item').forEach((el,i)=>el.classList.toggle('active',['dashboard','log','analytics','psychology','ai','watchlist','rules'][i]===p));
+  ['dashboard','log','analytics','psychology','ai','watchlist','rules'].forEach(id=>{
     const bn=document.getElementById('bn-'+id);
     if(bn)bn.classList.toggle('active',id===p);
   });
-  document.getElementById('pageTitle').textContent={dashboard:'Dashboard',log:'Trade Log',analytics:'Analytics',psychology:'Psychology',ai:'AI Summariser',watchlist:'Watchlist'}[p];
+  document.getElementById('pageTitle').textContent={dashboard:'Dashboard',log:'Trade Log',analytics:'Analytics',psychology:'Psychology',ai:'AI Summariser',watchlist:'Watchlist',rules:'Rules & Goals'}[p];
   document.getElementById('mainScroll').scrollTo({top:0,behavior:'smooth'});
   renderPage(p);
 }
@@ -24,6 +24,8 @@ function renderPage(p){
   if(p==='analytics')renderAnalytics();
   if(p==='psychology')renderPsychology();
   if(p==='watchlist')renderWatchlist();
+  if(p==='rules')renderRules();
+  updateRuleBanner();
 }
 
 // ── STATS ──────────────────────────────────────────────────────────────────

@@ -38,7 +38,7 @@ function navigateToMonthLog(ym){
 
 function renderTradeRows(tbodyId,trades){
   const tbody=document.getElementById(tbodyId);tbody.innerHTML='';
-  const s=CS();
+  const s=CS();const RF=ruleFlagMap();
   if(!trades.length){tbody.innerHTML=`<tr><td colspan="11" style="text-align:center;color:var(--muted);padding:20px">No trades</td></tr>`;return;}
   trades.forEach(t=>{
     const tr=document.createElement('tr');
@@ -48,7 +48,7 @@ function renderTradeRows(tbodyId,trades){
     tr.id='tr_'+t.id;
     tr.innerHTML=`
       <td style="color:var(--muted)">${t.date}${t.time?'<br><span style="font-size:10px;color:var(--muted);opacity:.7">'+t.time+'</span>':''}</td>
-      <td class="sym">${escHtml(t.sym)}</td>
+      <td class="sym">${escHtml(t.sym)}${flagMark(RF,t.id)}</td>
       <td><span class="${t.dir==='LONG'?'dir-long':'dir-short'}">${t.dir}</span></td>
       <td>${s}${t.entry}</td><td>${s}${t.exit}</td>
       <td style="color:var(--muted)">${qty}</td>

@@ -44,7 +44,39 @@ const INFO = {
   lossStreak:{t:'Max Loss Streak',d:'Longest run of consecutive losing trades. Size your risk so this streak cannot hurt you badly. Breakeven trades neither extend nor break a streak.'},
   curStreak:{t:'Current Streak',d:'Your current run of consecutive wins (W) or losses (L), counted from your most recent trades.'},
   greenDays:{t:'Green Days',d:'Share of trading days that ended in profit, with all trades on a date summed together.',f:'profitable days ÷ trading days'},
-  ddChart:{t:'Drawdown (Underwater Curve)',d:'How far below its previous high your equity sits after every trade. 0 means a new high; deeper valleys mean bigger drawdowns, and a long flat stretch below 0 means a slow recovery.'}
+  ddChart:{t:'Drawdown (Underwater Curve)',d:'How far below its previous high your equity sits after every trade. 0 means a new high; deeper valleys mean bigger drawdowns, and a long flat stretch below 0 means a slow recovery.'},
+  // richer analytics
+  todChart:{t:'P&L by Time of Day',d:'Net P&L grouped by the hour you entered the trade (uses the trade Time). Hover a bar for trade count and win rate. Trades logged without a time are excluded.'},
+  symChart:{t:'P&L by Symbol',d:'Net P&L per symbol. With many symbols it shows your 8 best and 7 worst. Hover a bar for trade count and win rate.'},
+  dirTable:{t:'Long vs Short',d:'Compares your long and short trades: win rate, net P&L, expectancy, average win/loss and profit factor. Shows whether you have an edge on one side only.'},
+  holdChart:{t:'P&L by Holding Time',d:'Net P&L grouped by how long you held the trade (Exit Time − Time). Needs both times on a trade. Shows whether quick scalps or longer holds pay better.'},
+  holdAvg:{t:'Average Holding Time',d:'Average time between entry and exit across trades that have both times logged.'},
+  holdWin:{t:'Winners: Average Hold',d:'Average holding time of your winning trades.'},
+  holdLoss:{t:'Losers: Average Hold',d:'Average holding time of your losing trades. If this is much longer than winners, you may be holding losses hoping they recover.'},
+  exitTime:{t:'Exit Time',d:'Optional. The time you exited the trade (same day). Used for holding-time analytics, and only works when the entry Time is filled too.'},
+  // rules & goals
+  rulesForm:{t:'My Trading Rules',d:'Personal limits for this profile (0 = off), synced to your account. Trades are checked against them automatically: breaches show in a banner on every page and mark trades with ⚑ in the log.'},
+  ruleMaxLoss:{t:'Max Daily Loss',d:'Stop trading for the day once the day’s net P&L falls to this loss (enter a positive number). Any later trade that day is flagged.'},
+  ruleMaxTrades:{t:'Max Trades per Day',d:'The most trades you allow yourself in a day. The next trade after the limit is flagged as over-trading.'},
+  ruleMaxConsec:{t:'Max Consecutive Losses',d:'Stop for the day after this many losing trades in a row. Breakeven trades neither extend nor reset the run. Later trades are flagged.'},
+  ruleMaxLossTrade:{t:'Max Loss per Trade',d:'The largest loss you accept on a single trade. A trade losing this much or more is flagged — usually a sign a stop-loss was ignored.'},
+  ruleCooldown:{t:'Cooldown After a Loss',d:'Minimum minutes to wait after a loss before the next entry. Entering sooner is flagged as a quick re-entry. Uses the Time logged on trades.'},
+  ruleTarget:{t:'Monthly Profit Target',d:'Your net profit goal for the current month. Progress shows on the Rules page and a banner appears when you reach it.'},
+  ruleSizeUp:{t:'Flag Size-ups After a Loss',d:'Flags a trade whose position size is more than 1.5× the previous trade’s size right after a same-day loss — a classic revenge-trading pattern.'},
+  rDaily:{t:'Daily P&L',d:'Today’s net P&L versus your max daily loss. The bar fills as you approach the limit: amber at 80%, red when reached.'},
+  rTrades:{t:'Trades Today',d:'How many trades you have taken today versus your daily cap.'},
+  rStreak:{t:'Loss Streak Today',d:'Current run of consecutive losing trades today versus your stop limit.'},
+  rMonth:{t:'Monthly Target',d:'Net P&L so far this calendar month versus your monthly target.'},
+  discipline:{t:'Discipline',d:'How well you follow your rules. A clean day has no rule-breaking trades and no daily-loss breach.'},
+  cleanDays:{t:'Clean Days (30d)',d:'Share of your trading days in the last 30 days with no rule breaks.',f:'clean days ÷ trading days'},
+  cleanStreak:{t:'Clean Streak',d:'Number of consecutive trading days, ending with your most recent day, with no rule breaks.'},
+  brokeRules:{t:'Rule-breaking Trades',d:'Trades flagged with ⚑. Compare the P&L of trades that broke your rules with those that followed them — that gap is the cost of indiscipline.'},
+  revenge:{t:'Revenge-trading Signals',d:'Signs of emotional trading: trades you tagged “revenge”, quick re-entries after a loss, and bigger positions right after a loss.'},
+  revTag:{t:'Tagged Revenge',d:'Trades where you selected the “Revenge” emotion, with their combined net P&L.'},
+  revQuick:{t:'Quick Re-entries',d:'Trades entered sooner than your cooldown after a same-day loss. Needs a cooldown rule and trade Times.'},
+  revSize:{t:'Size-ups After a Loss',d:'Trades taken right after a loss with a position more than 1.5× the previous trade.'},
+  afterLoss:{t:'Win Rate After a Loss',d:'Win rate of trades taken right after a same-day loss, compared with your overall win rate. A clearly lower number means you trade worse after losing.'},
+  recentBreaks:{t:'Recent Rule Breaks',d:'Trades and days from the last 30 days that violated your rules, with the reason for each.'}
 };
 
 let _tipEl=null,_tipFor=null;

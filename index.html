@@ -73,6 +73,9 @@
     <div class="nav-item" onclick="setPage('watchlist');closeSidebar()">
       <svg class="nav-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 2l1.5 3 3.5.5-2.5 2.5.5 3.5L8 10l-3 1.5.5-3.5L3 5.5 6.5 5z"/></svg>Watchlist
     </div>
+    <div class="nav-item" onclick="setPage('rules');closeSidebar()">
+      <svg class="nav-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 1.5l5.5 2v4c0 3.2-2.3 5.7-5.5 7-3.2-1.3-5.5-3.8-5.5-7v-4z"/><path d="M5.5 8l1.8 1.8L10.5 6.5"/></svg>Rules &amp; Goals
+    </div>
   </nav>
   <div class="sidebar-footer">
     <div class="profile-switcher">
@@ -123,6 +126,8 @@
         <button class="btn btn-accent btn-sm" onclick="openModal()">+ Add Trade</button>
       </div>
     </div>
+
+    <div id="ruleBanner" class="rule-banner" style="display:none" role="alert"></div>
 
     <!-- DASHBOARD -->
     <div class="content" id="pageDashboard">
@@ -242,6 +247,36 @@
         <div class="chart-wrap" style="height:220px"><canvas id="monthChart"></canvas></div>
       </div>
       <div class="card"><div class="card-header"><span class="card-title" data-info="cumPnl">Cumulative P&L</span></div><div class="chart-wrap" style="height:190px"><canvas id="cumChart"></canvas></div></div>
+      <div class="card"><div class="card-header"><span class="card-title" data-info="todChart">P&L by Time of Day</span></div><div class="chart-wrap" style="height:190px"><canvas id="todChart"></canvas></div><div class="chart-note" id="todNote"></div></div>
+      <div class="section-row">
+        <div class="card"><div class="card-header"><span class="card-title" data-info="symChart">P&L by Symbol</span></div><div class="chart-wrap" style="height:220px"><canvas id="symChart"></canvas></div><div class="chart-note" id="symNote"></div></div>
+        <div class="card"><div class="card-header"><span class="card-title" data-info="dirTable">Long vs Short</span></div><div id="dirTable"></div></div>
+      </div>
+      <div class="card"><div class="card-header"><span class="card-title" data-info="holdChart">P&L by Holding Time</span></div>
+        <div class="stats-grid" id="holdStats" style="grid-template-columns:repeat(3,1fr);margin-bottom:10px"></div>
+        <div class="chart-wrap" style="height:190px"><canvas id="holdChart"></canvas></div><div class="chart-note" id="holdNote"></div></div>
+    </div>
+
+    <!-- RULES & GOALS -->
+    <div class="content" id="pageRules" style="display:none">
+      <div id="rulesHint" class="rules-hint" style="display:none">👋 Set at least one rule below (daily loss limit, max trades…) and TradeDiary will watch your trades, warn you with a banner, and flag rule breaks.</div>
+      <div class="stats-grid" id="rulesStatus"></div>
+      <div class="card" id="rulesForm">
+        <div class="card-header"><span class="card-title" data-info="rulesForm">My Trading Rules</span><span class="badge badge-blue" id="rulesProfileBadge"></span></div>
+        <div class="form-grid" style="grid-template-columns:repeat(auto-fit,minmax(190px,1fr))">
+        <div class="form-group"><label class="form-label"><span data-info="ruleMaxLoss">Max daily loss <span class="rcur"></span></span></label><input class="form-input" type="number" min="0" step="any" id="r_maxDailyLoss" placeholder="0 = off"/></div>
+        <div class="form-group"><label class="form-label"><span data-info="ruleMaxTrades">Max trades per day</span></label><input class="form-input" type="number" min="0" step="any" id="r_maxDailyTrades" placeholder="0 = off"/></div>
+        <div class="form-group"><label class="form-label"><span data-info="ruleMaxConsec">Stop after N losses in a row</span></label><input class="form-input" type="number" min="0" step="any" id="r_maxConsecLosses" placeholder="0 = off"/></div>
+        <div class="form-group"><label class="form-label"><span data-info="ruleMaxLossTrade">Max loss per trade <span class="rcur"></span></span></label><input class="form-input" type="number" min="0" step="any" id="r_maxLossPerTrade" placeholder="0 = off"/></div>
+        <div class="form-group"><label class="form-label"><span data-info="ruleCooldown">Cooldown after a loss (min)</span></label><input class="form-input" type="number" min="0" step="any" id="r_cooldownMin" placeholder="0 = off"/></div>
+        <div class="form-group"><label class="form-label"><span data-info="ruleTarget">Monthly profit target <span class="rcur"></span></span></label><input class="form-input" type="number" min="0" step="any" id="r_monthlyTarget" placeholder="0 = off"/></div>
+        </div>
+        <label class="chk-row"><input type="checkbox" id="r_flagSizeUp"/> <span data-info="ruleSizeUp">Flag position size-ups right after a loss</span></label>
+        <div class="form-footer"><span id="rulesSaved" style="display:none;color:var(--accent);font-size:12px;align-self:center">Saved ✓</span><button class="btn btn-accent" onclick="saveRules()">Save rules</button></div>
+      </div>
+      <div class="card"><div class="card-header"><span class="card-title" data-info="discipline">Discipline · last 30 days</span></div><div id="rulesDiscipline"></div></div>
+      <div class="card"><div class="card-header"><span class="card-title" data-info="revenge">Revenge-trading Signals</span></div><div id="rulesRevenge"></div></div>
+      <div class="card"><div class="card-header"><span class="card-title" data-info="recentBreaks">Recent Rule Breaks</span></div><div id="rulesBreaks"></div></div>
     </div>
 
     <!-- PSYCHOLOGY -->
@@ -363,6 +398,10 @@
       <svg class="bn-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 2l1.5 3 3.5.5-2.5 2.5.5 3.5L8 10l-3 1.5.5-3.5L3 5.5 6.5 5z"/></svg>
       <span class="bn-label">Watch</span>
     </button>
+    <button class="bn-item" id="bn-rules" onclick="setPage('rules')">
+      <svg class="bn-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 1.5l5.5 2v4c0 3.2-2.3 5.7-5.5 7-3.2-1.3-5.5-3.8-5.5-7v-4z"/><path d="M5.5 8l1.8 1.8L10.5 6.5"/></svg>
+      <span class="bn-label">Rules</span>
+    </button>
   </div>
 </nav>
 
@@ -381,6 +420,7 @@
       </div>
       <div class="form-group"><label class="form-label">Date</label><input class="form-input" type="date" id="f_date"/></div>
       <div class="form-group"><label class="form-label">Time <span style="color:var(--muted);font-size:9px;font-weight:400;text-transform:none">(optional)</span></label><input class="form-input" type="time" id="f_time" placeholder="HH:MM"/></div>
+      <div class="form-group"><label class="form-label"><span data-info="exitTime">Exit Time</span> <span style="color:var(--muted);font-size:9px;font-weight:400;text-transform:none">(optional)</span></label><input class="form-input" type="time" id="f_exitTime"/></div>
       <div class="form-group"><label class="form-label">Direction</label><select class="form-select" id="f_dir"><option value="LONG">Long</option><option value="SHORT">Short</option></select></div>
       <div class="form-group"><label class="form-label">Strategy</label><input class="form-input" id="f_strat" placeholder="Breakout..."/></div>
       <div class="form-group"><label class="form-label">Entry Price</label><input class="form-input" type="number" id="f_entry" placeholder="0.00" oninput="calcCryptoQty()"/></div>
@@ -569,6 +609,8 @@
 <script src="js/tradelog.js"></script>
 <script src="js/analytics.js"></script>
 <script src="js/metrics.js"></script>
+<script src="js/rules.js"></script>
+<script src="js/insights.js"></script>
 <script src="js/notes.js"></script>
 <script src="js/trade-modal.js"></script>
 <script src="js/fees.js"></script>

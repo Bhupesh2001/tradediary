@@ -52,6 +52,7 @@ window._onLogin = function(user){
   document.getElementById('userEmail').textContent=user.email;
   startFirebaseListener();
   startSetupsListener();
+  startRulesListener();
   switchProfile(currentProfile);
 };
 window._onLogout = function(){
@@ -59,12 +60,15 @@ window._onLogout = function(){
   if(oldUID && window._fbOff){
     window._fbOff('users/'+oldUID+'/trades');
     window._fbOff('users/'+oldUID+'/setups');
+    window._fbOff('users/'+oldUID+'/rules');
   }
   fbListenerActive = false;
   setupsListenerActive = false;
   currentUID = null;
   allTrades = [];
   allSetups = [];
+  allRules = {};
+  rulesListenerActive = false;
   document.getElementById('authScreen').style.display='flex';
   document.getElementById('appScreen').style.display='none';
 };

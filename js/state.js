@@ -6,7 +6,7 @@ let selectedEmotion = '', editingId = null, deleteTargetId = null;
 let tradeImages = [];
 let hmYear = new Date().getFullYear(), hmMonth = new Date().getMonth();
 let selectedDates = new Set(), lastClickedDate = null;
-let eqChart, pieChart, stratChart, dowChart, cumChart, emChart, monthChart, ddChart;
+let eqChart, pieChart, stratChart, dowChart, cumChart, emChart, monthChart, ddChart, todChart, symChart, holdChart;
 let npTrades = [], npIndex = 0;
 let mergeMode = 'merge';
 let currentUID = null;
@@ -43,3 +43,16 @@ function compressImage(file, maxW = 1200, quality = 0.7){
     r.readAsDataURL(file);
   });
 }
+
+// Local-date helpers (toISOString() is UTC and gives "yesterday" early morning in IST)
+function dateStr(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}
+function todayStr(){return dateStr(new Date())}
+// Trade time helpers. A blank time is stored as the sentinel '23:59' (sorts last) and is treated as "unknown".
+function realTime(t){return !!(t&&t.time&&t.time!=='23:59')}
+function toMin(hhmm){const p=String(hhmm).split(':');return (+p[0])*60+(+p[1]||0)}
+function holdMinutes(t){
+  if(!realTime(t)||!t.exitTime) return null;
+  const m=toMin(t.exitTime)-toMin(t.time);
+  return m>=0?m:null;
+}
+function fmtDur(m){return m<60?Math.round(m)+'m':Math.floor(m/60)+'h '+String(Math.round(m%60)).padStart(2,'0')+'m'}
