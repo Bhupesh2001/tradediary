@@ -1,11 +1,31 @@
 // ── Cache version — bump CACHE_VERSION on every deploy ───────────────────
 // Format: YYYYMMDDNN (date + sequence). Change this = instant cache bust.
-const CACHE_VERSION = '2026032202';
+const CACHE_VERSION = '2026100301';
 const CACHE_NAME = 'tradediary-' + CACHE_VERSION;
 
 const STATIC_ASSETS = [
   '/tradediary/',
   '/tradediary/index.html',
+  '/tradediary/css/style.css',
+  '/tradediary/js/config.js',
+  '/tradediary/js/state.js',
+  '/tradediary/js/auth.js',
+  '/tradediary/js/navigation.js',
+  '/tradediary/js/dashboard.js',
+  '/tradediary/js/tradelog.js',
+  '/tradediary/js/analytics.js',
+  '/tradediary/js/notes.js',
+  '/tradediary/js/trade-modal.js',
+  '/tradediary/js/images.js',
+  '/tradediary/js/backup.js',
+  '/tradediary/js/ai.js',
+  '/tradediary/js/daterange.js',
+  '/tradediary/js/watchlist.js',
+  '/tradediary/js/prices.js',
+  '/tradediary/js/init.js',
+  '/tradediary/js/firebase.js',
+  '/tradediary/icon-192.png',
+  '/tradediary/icon-512.png',
   '/tradediary/manifest.json',
 ];
 
@@ -43,8 +63,8 @@ self.addEventListener('fetch', e => {
     url.includes('cdnjs.cloudflare.com')
   ) return;
 
-  // HTML pages → Network First (always get fresh index.html from GitHub)
-  if (e.request.mode === 'navigate' || url.endsWith('.html')) {
+  // HTML/JS/CSS → Network First (always get fresh code from GitHub Pages)
+  if (e.request.mode === 'navigate' || /\.(html|js|css)(\?.*)?$/.test(url)) {
     e.respondWith(
       fetch(e.request)
         .then(res => {
