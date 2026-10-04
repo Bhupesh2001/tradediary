@@ -80,6 +80,7 @@ function startFirebaseListener(){
   setSyncStatus('syncing','Syncing...');
   window._fbListen('users/'+currentUID+'/trades', data=>{
     allTrades = data ? Object.values(data) : [];
+    normalizeLegacySide();
     setSyncStatus('synced','Synced ✓');
     renderPage(currentPage);
     if(selectedDates.size)renderDayPanel();

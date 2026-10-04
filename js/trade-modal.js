@@ -109,7 +109,9 @@ function saveTrade(){
   pnl=+(gross-fees).toFixed(currentProfile==='USD'?4:2);   // pnl = NET
   const feeSeg=currentProfile==='INR'?document.getElementById('f_feeSeg').value:null;
   const feeRate=currentProfile==='USD'?(parseFloat(document.getElementById('f_feeRate').value)||0):null;
-  const obj={id:editingId||uid(),profile:currentProfile,sym,date,time,dir,strat,entry,exit,qty,sl,leverage,amount,notes,emotion,pnl,grossPnl:gross,fees,feeSeg,feeRate,feesManual,exitTime,images:tradeImages};
+  const old=editingId?allTrades.find(x=>x.id===editingId):null;
+  const keep={};['instrument','optType','product','externalId','source'].forEach(k=>{if(old&&old[k]!==undefined)keep[k]=old[k];});
+  const obj={...keep,id:editingId||uid(),profile:currentProfile,sym,date,time,dir,strat,entry,exit,qty,sl,leverage,amount,notes,emotion,pnl,grossPnl:gross,fees,feeSeg,feeRate,feesManual,exitTime,images:tradeImages};
   if(editingId){const i=allTrades.findIndex(x=>x.id===editingId);if(i>=0)allTrades[i]=obj;}
   else allTrades.push(obj);
   saveTradeFB(obj);

@@ -5,6 +5,31 @@ function groupStats(list){
   return {n,wins:wins.length,winRate:n?wins.length/n:0,net,avgWin:wins.length?gw/wins.length:0,avgLoss:losses.length?gl/losses.length:0,pf:gl>0?gw/gl:null,exp:n?net/n:0};
 }
 
+function optTypeOf(t){
+  if(t.optType)return t.optType;
+  const m=String(t.sym||'').toUpperCase().match(/(?:\d|\s)(CE|PE)$/);
+  return m?m[1]:null;
+}
+// Market view the trade expresses: bought CE / sold PE / long equity = BULL; bought PE / sold CE / short equity = BEAR
+function marketView(t){
+  const o=optTypeOf(t);
+  if(o)return ((o==='CE')===(t.dir==='LONG'))?'BULL':'BEAR';
+  return t.dir==='LONG'?'BULL':'BEAR';
+}
+function cmpTable(A,B,hA,hB,cA,cB){
+  const cell=(g,f)=>g.n?f(g):'—';
+  const pc=g=>Math.round(g.winRate*100)+'%',cl=v=>`<span style="color:var(--${v>=0?'accent':'danger'})">${fmtSigned(v)}</span>`;
+  const row=(label,f)=>`<tr><td>${label}</td><td>${cell(A,f)}</td><td>${cell(B,f)}</td></tr>`;
+  return '<table class="mini-table"><thead><tr><th></th><th class="'+cA+'">'+hA+'</th><th class="'+cB+'">'+hB+'</th></tr></thead><tbody>'+
+    row('Trades',g=>g.n)+row('Win rate',pc)+row('Net P&L',g=>cl(g.net))+row('Expectancy',g=>cl(g.exp))+
+    row('Avg win',g=>fmtMoney(g.avgWin))+row('Avg loss',g=>g.avgLoss?'−'+fmtMoney(g.avgLoss):'—')+row('Profit factor',g=>g.pf===null?'—':g.pf.toFixed(2))+'</tbody></table>';
+}
+function cmpNote(A,B,la,lb){
+  if(A.n<3||B.n<3)return 'Log at least 3 trades on each side for a fair comparison.';
+  const better=A.exp>=B.exp?[la,A,lb,B]:[lb,B,la,A];
+  return 'Your edge is stronger on '+better[0]+' ('+fmtSigned(better[1].exp)+' per trade) than on '+better[2]+' ('+fmtSigned(better[3].exp)+' per trade).';
+}
+
 function renderInsights(){
   const trades=getTrades(),s=CS();
   [todChart,symChart,holdChart].forEach(c=>{if(c)c.destroy();});todChart=symChart=holdChart=null;
@@ -39,15 +64,17 @@ function renderInsights(){
       options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:tipExtra(arr)},scales:{x:{ticks:{...tick,callback:yFmt},grid},y:{ticks:tick,grid:{display:false}}}}});
   }
 
-  // ---- long vs short
-  const L=groupStats(trades.filter(t=>t.dir==='LONG')),S2=groupStats(trades.filter(t=>t.dir==='SHORT'));
-  const cell=(g,f)=>g.n?f(g):'—';
-  const pc=g=>Math.round(g.winRate*100)+'%',cl=v=>`<span style="color:var(--${v>=0?'accent':'danger'})">${fmtSigned(v)}</span>`;
-  const row=(label,f)=>`<tr><td>${label}</td><td>${cell(L,f)}</td><td>${cell(S2,f)}</td></tr>`;
-  document.getElementById('dirTable').innerHTML=!trades.length?'<div class="empty-note">No trades yet.</div>':
-    '<table class="mini-table"><thead><tr><th></th><th class="dir-long">Long</th><th class="dir-short">Short</th></tr></thead><tbody>'+
-    row('Trades',g=>g.n)+row('Win rate',pc)+row('Net P&L',g=>cl(g.net))+row('Expectancy',g=>cl(g.exp))+
-    row('Avg win',g=>fmtMoney(g.avgWin))+row('Avg loss',g=>g.avgLoss?'−'+fmtMoney(g.avgLoss):'—')+row('Profit factor',g=>g.pf===null?'—':g.pf.toFixed(2))+'</tbody></table>';
+  // ---- long vs short / bullish vs bearish / calls vs puts
+  const none='<div class="empty-note">No trades yet.</div>';
+  const isLong=t=>t.dir==='LONG';
+  document.getElementById('dirTable').innerHTML=!trades.length?none:cmpTable(groupStats(trades.filter(isLong)),groupStats(trades.filter(t=>!isLong(t))),'Long','Short','dir-long','dir-short');
+  const BG=groupStats(trades.filter(t=>marketView(t)==='BULL')),RG=groupStats(trades.filter(t=>marketView(t)==='BEAR'));
+  document.getElementById('viewTable').innerHTML=!trades.length?none:cmpTable(BG,RG,'Bullish','Bearish','dir-long','dir-short');
+  document.getElementById('viewNote').textContent=trades.length?cmpNote(BG,RG,'Bullish bets','Bearish bets'):'';
+  const opts=trades.filter(t=>optTypeOf(t));
+  const CG=groupStats(opts.filter(t=>optTypeOf(t)==='CE')),PG=groupStats(opts.filter(t=>optTypeOf(t)==='PE'));
+  document.getElementById('cepeTable').innerHTML=!opts.length?'<div class="empty-note">No option trades found. Options are detected from the instrument or a symbol ending in CE / PE.</div>':cmpTable(CG,PG,'Calls (CE)','Puts (PE)','dir-long','dir-short');
+  document.getElementById('cepeNote').textContent=opts.length?cmpNote(CG,PG,'Calls','Puts'):'';
 
   // ---- holding time
   const hv=trades.map(t=>({t,m:holdMinutes(t)})).filter(x=>x.m!==null);

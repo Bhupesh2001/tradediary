@@ -1,6 +1,6 @@
 // ── Cache version — bump CACHE_VERSION on every deploy ───────────────────
 // Format: YYYYMMDDNN (date + sequence). Change this = instant cache bust.
-const CACHE_VERSION = '2026100304';
+const CACHE_VERSION = '2026100306';
 const CACHE_NAME = 'tradediary-' + CACHE_VERSION;
 
 const STATIC_ASSETS = [
@@ -18,6 +18,7 @@ const STATIC_ASSETS = [
   '/tradediary/js/metrics.js',
   '/tradediary/js/rules.js',
   '/tradediary/js/insights.js',
+  '/tradediary/js/import.js',
   '/tradediary/js/notes.js',
   '/tradediary/js/trade-modal.js',
   '/tradediary/js/fees.js',

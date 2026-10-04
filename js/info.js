@@ -48,7 +48,7 @@ const INFO = {
   // richer analytics
   todChart:{t:'P&L by Time of Day',d:'Net P&L grouped by the hour you entered the trade (uses the trade Time). Hover a bar for trade count and win rate. Trades logged without a time are excluded.'},
   symChart:{t:'P&L by Symbol',d:'Net P&L per symbol. With many symbols it shows your 8 best and 7 worst. Hover a bar for trade count and win rate.'},
-  dirTable:{t:'Long vs Short',d:'Compares your long and short trades: win rate, net P&L, expectancy, average win/loss and profit factor. Shows whether you have an edge on one side only.'},
+  dirTable:{t:'Long vs Short',d:'Compares your long and short trades: win rate, net P&L, expectancy, average win/loss and profit factor. Shows whether you have an edge on one side only. Long = bought first, Short = sold first. For rising vs falling market performance see Bullish vs Bearish and Calls vs Puts.'},
   holdChart:{t:'P&L by Holding Time',d:'Net P&L grouped by how long you held the trade (Exit Time − Time). Needs both times on a trade. Shows whether quick scalps or longer holds pay better.'},
   holdAvg:{t:'Average Holding Time',d:'Average time between entry and exit across trades that have both times logged.'},
   holdWin:{t:'Winners: Average Hold',d:'Average holding time of your winning trades.'},
@@ -76,6 +76,10 @@ const INFO = {
   revQuick:{t:'Quick Re-entries',d:'Trades entered sooner than your cooldown after a same-day loss. Needs a cooldown rule and trade Times.'},
   revSize:{t:'Size-ups After a Loss',d:'Trades taken right after a loss with a position more than 1.5× the previous trade.'},
   afterLoss:{t:'Win Rate After a Loss',d:'Win rate of trades taken right after a same-day loss, compared with your overall win rate. A clearly lower number means you trade worse after losing.'},
+  dirField:{t:'Direction',d:'Long = you bought first (profit when the price rises). Short = you sold first (profit when it falls). A bought option is Long whether it is a CE or a PE — use Analytics → Calls vs Puts and Bullish vs Bearish to compare how you do in rising and falling markets.'},
+  importJson:{t:'Import Trades from JSON',d:'Paste a JSON list of completed trades produced by your broker AI. Direction is set automatically from the opening order (Buy first = Long, Sell first = Short). You then add emotion, stop loss, strategy and comments, review the P&L, and save. Trades already in your journal are detected and unticked.'},
+  viewTable:{t:'Bullish vs Bearish Bets',d:'Compares trades by the market view they express, whatever the instrument. Bullish = profits when the market rises (long equity/futures, bought CE, sold PE). Bearish = profits when it falls (short equity/futures, bought PE, sold CE). Shows how you perform in rising vs falling markets.'},
+  cepeTable:{t:'Calls (CE) vs Puts (PE)',d:'Options only: performance on Calls (CE) vs Puts (PE), whether bought or sold. Options are detected from the imported instrument or from a symbol ending in CE / PE.'},
   recentBreaks:{t:'Recent Rule Breaks',d:'Trades and days from the last 30 days that violated your rules, with the reason for each.'}
 };
 
