@@ -4,6 +4,7 @@
 });
 setSyncStatus('syncing','Connecting...');
 injectInfoIcons();
+applySidebarState();
 
 // ── SERVICE WORKER ─────────────────────────────────────────────────────────
 if('serviceWorker' in navigator){

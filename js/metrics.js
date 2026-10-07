@@ -1,4 +1,5 @@
 // ── PERFORMANCE METRICS (net P&L) ──────────────────────────────────────────
+let perfTp={};   // clickable metric cards -> trade-panel filters (rebuilt on every render)
 function getCapital(){return parseFloat(lsGet('td_capital_'+currentProfile,''))||0}
 function daysBetween(a,b){return Math.round((Date.UTC(+b.slice(0,4),+b.slice(5,7)-1,+b.slice(8,10))-Date.UTC(+a.slice(0,4),+a.slice(5,7)-1,+a.slice(8,10)))/864e5)}
 
@@ -34,12 +35,12 @@ function computePerf(trades){
   if(ddStart&&n){const dur=daysBetween(ddStart,sorted[n-1].date);if(dur>=maxDur){maxDur=dur;durOngoing=true;}}
   const curDD=peak-eq, curPct=cap>0?curDD/(cap+peak):0;
   // streaks (breakeven ignored)
-  let cw=0,cl=0,mw=0,ml=0;
+  let cw=0,cl=0,mw=0,ml=0,runW=[],runL=[],mwIds=[],mlIds=[];
   sorted.forEach(t=>{
-    if(t.pnl>0){cw++;cl=0;}else if(t.pnl<0){cl++;cw=0;}else return;
-    if(cw>mw)mw=cw; if(cl>ml)ml=cl;
+    if(t.pnl>0){cw++;cl=0;runW.push(t.id);runL=[];}else if(t.pnl<0){cl++;cw=0;runL.push(t.id);runW=[];}else return;
+    if(cw>mw){mw=cw;mwIds=runW.slice();} if(cl>ml){ml=cl;mlIds=runL.slice();}
   });
-  const cur=cw>0?{n:cw,type:'W'}:cl>0?{n:cl,type:'L'}:null;
+  const cur=cw>0?{n:cw,type:'W',ids:runW.slice()}:cl>0?{n:cl,type:'L',ids:runL.slice()}:null;
   // extremes
   const byPnl=[...sorted].sort((a,b)=>b.pnl-a.pnl);
   const best=byPnl[0], worst=byPnl[byPnl.length-1];
@@ -48,10 +49,11 @@ function computePerf(trades){
   const bestDay=days.length?days.reduce((a,b)=>b.pnl>a.pnl?b:a):null;
   const worstDay=days.length?days.reduce((a,b)=>b.pnl<a.pnl?b:a):null;
   const green=days.filter(d=>d.pnl>0).length;
+  const greenSet=new Set(days.filter(d=>d.pnl>0).map(d=>d.date)),greenIds=sorted.filter(t=>greenSet.has(t.date)).map(t=>t.id);
   return {n,cap,net,wins:wins.length,losses:losses.length,avgWin,avgLoss,payoff,winRate,beWin,
     expectancy:n?net/n:0,expR:rN?rSum/rN:null,rN,
     maxDD,maxDDPeak,maxDDDate,maxPct,curDD,curPct,maxDur,durOngoing,
-    maxWinStreak:mw,maxLossStreak:ml,cur,best,worst,bestDay,worstDay,tradingDays:days.length,green,labels,ddSeries};
+    peakDate,lastDate:n?sorted[n-1].date:null,mwIds,mlIds,greenIds,maxWinStreak:mw,maxLossStreak:ml,cur,best,worst,bestDay,worstDay,tradingDays:days.length,green,labels,ddSeries};
 }
 
 function renderPerf(){
@@ -67,7 +69,21 @@ function renderPerf(){
   if(ddChart){ddChart.destroy();ddChart=null;}
   if(!trades.length){grid.innerHTML='<div style="color:var(--muted);font-size:13px;padding:6px 0">Log some trades to see performance metrics.</div>';return;}
   const P=computePerf(trades);
-  const card=(key,label,val,sub,cls)=>`<div class="stat-card"><div class="stat-label" data-info="${key}">${label}</div><div class="stat-value ${cls||''}" style="font-size:19px">${val}</div><div class="stat-sub">${sub||'&nbsp;'}</div></div>`;
+  const T1=(label,F)=>({label,F});
+  perfTp={};
+  if(P.wins)perfTp.avgWin=T1('Winning trades',{result:'win'});
+  if(P.losses)perfTp.avgLoss=T1('Losing trades',{result:'loss'});
+  if(P.best)perfTp.bestTrade=T1('Best trade',{ids:[P.best.id]});
+  if(P.worst)perfTp.worstTrade=T1('Worst trade',{ids:[P.worst.id]});
+  if(P.bestDay)perfTp.bestDay=T1('Best day · '+P.bestDay.date,{from:P.bestDay.date,to:P.bestDay.date});
+  if(P.worstDay)perfTp.worstDay=T1('Worst day · '+P.worstDay.date,{from:P.worstDay.date,to:P.worstDay.date});
+  if(P.maxDD>0)perfTp.maxDD=T1('Max drawdown · '+P.maxDDPeak+' → '+P.maxDDDate,{from:P.maxDDPeak,to:P.maxDDDate});
+  if(P.curDD>0)perfTp.curDD=T1('Current drawdown · since '+P.peakDate,{from:P.peakDate,to:P.lastDate});
+  if(P.maxWinStreak)perfTp.winStreak=T1('Longest win streak',{ids:P.mwIds});
+  if(P.maxLossStreak)perfTp.lossStreak=T1('Longest loss streak',{ids:P.mlIds});
+  if(P.cur)perfTp.curStreak=T1('Current streak',{ids:P.cur.ids});
+  if(P.green)perfTp.greenDays=T1('Trades on green days',{ids:P.greenIds});
+  const card=(key,label,val,sub,cls)=>`<div class="stat-card${perfTp[key]?' clickable':''}"${perfTp[key]?' data-tpkey="'+key+'"':''}><div class="stat-label" data-info="${key}">${label}</div><div class="stat-value ${cls||''}" style="font-size:19px">${val}</div><div class="stat-sub">${sub||'&nbsp;'}</div></div>`;
   const pn=v=>v>0?'green':v<0?'red':'';
   const short=d=>d?d.slice(5):'';
   const edge=[
@@ -110,4 +126,9 @@ document.getElementById('capInput').addEventListener('change',e=>{
   const v=parseFloat(e.target.value);
   lsSet('td_capital_'+currentProfile,isNaN(v)||v<=0?'':String(v));
   renderPerf();
+});
+
+document.getElementById('perfGrid').addEventListener('click',e=>{
+  const c=e.target.closest('[data-tpkey]');
+  if(c&&perfTp[c.dataset.tpkey])openTradePanel(perfTp[c.dataset.tpkey].label,perfTp[c.dataset.tpkey].F);
 });

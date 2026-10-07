@@ -1,4 +1,6 @@
 // ── RICHER ANALYTICS: time of day, symbol, direction, holding time ─────────
+const HOLD_BUCKETS=[{l:'<5m',max:5},{l:'5–15m',max:15},{l:'15–30m',max:30},{l:'30–60m',max:60},{l:'1–2h',max:120},{l:'2h+',max:Infinity}];
+function holdBucket(m){return HOLD_BUCKETS.find(b=>m<b.max).l}
 function groupStats(list){
   const n=list.length,wins=list.filter(t=>t.pnl>0),losses=list.filter(t=>t.pnl<0);
   const net=list.reduce((a,t)=>a+t.pnl,0),gw=wins.reduce((a,t)=>a+t.pnl,0),gl=Math.abs(losses.reduce((a,t)=>a+t.pnl,0));
@@ -16,13 +18,13 @@ function marketView(t){
   if(o)return ((o==='CE')===(t.dir==='LONG'))?'BULL':'BEAR';
   return t.dir==='LONG'?'BULL':'BEAR';
 }
-function cmpTable(A,B,hA,hB,cA,cB){
+function cmpTable(A,B,hA,hB,cA,cB,kA,kB){
   const cell=(g,f)=>g.n?f(g):'—';
   const pc=g=>Math.round(g.winRate*100)+'%',cl=v=>`<span style="color:var(--${v>=0?'accent':'danger'})">${fmtSigned(v)}</span>`;
   const row=(label,f)=>`<tr><td>${label}</td><td>${cell(A,f)}</td><td>${cell(B,f)}</td></tr>`;
-  return '<table class="mini-table"><thead><tr><th></th><th class="'+cA+'">'+hA+'</th><th class="'+cB+'">'+hB+'</th></tr></thead><tbody>'+
+  return '<table class="mini-table"><thead><tr><th></th><th class="'+cA+' tp-th" data-tp="'+kA+'" title="Click to list these trades">'+hA+'</th><th class="'+cB+' tp-th" data-tp="'+kB+'" title="Click to list these trades">'+hB+'</th></tr></thead><tbody>'+
     row('Trades',g=>g.n)+row('Win rate',pc)+row('Net P&L',g=>cl(g.net))+row('Expectancy',g=>cl(g.exp))+
-    row('Avg win',g=>fmtMoney(g.avgWin))+row('Avg loss',g=>g.avgLoss?'−'+fmtMoney(g.avgLoss):'—')+row('Profit factor',g=>g.pf===null?'—':g.pf.toFixed(2))+'</tbody></table>';
+    row('Avg win',g=>fmtMoney(g.avgWin))+row('Avg loss',g=>g.avgLoss?'−'+fmtMoney(g.avgLoss):'—')+row('Profit factor',g=>g.pf===null?'—':g.pf.toFixed(2))+'</tbody></table><div class="tbl-hint">Click a column heading to list those trades</div>';
 }
 function cmpNote(A,B,la,lb){
   if(A.n<3||B.n<3)return 'Log at least 3 trades on each side for a fair comparison.';
@@ -48,7 +50,7 @@ function renderInsights(){
   if(hk.length){
     const best=hk.reduce((a,b)=>hrs[b].pnl>hrs[a].pnl?b:a),worst=hk.reduce((a,b)=>hrs[b].pnl<hrs[a].pnl?b:a),hh=h=>String(h).padStart(2,'0')+':00';
     document.getElementById('todNote').textContent='Best hour '+hh(best)+' ('+fmtSigned(hrs[best].pnl)+', '+hrs[best].n+' trades) · Worst hour '+hh(worst)+' ('+fmtSigned(hrs[worst].pnl)+', '+hrs[worst].n+' trades)'+(skipped?' · '+skipped+' trade(s) without a time excluded':'');
-    todChart=new Chart(document.getElementById('todChart').getContext('2d'),{type:'bar',data:{labels:hk.map(hh),datasets:[{data:hg.map(g=>+g.pnl.toFixed(2)),backgroundColor:hg.map(g=>col(g.pnl)),borderRadius:5}]},
+    todChart=new Chart(document.getElementById('todChart').getContext('2d'),{type:'bar',plugins:[clickPlugin(i=>openTradePanel('Entered at '+hh(hk[i]),{hour:hk[i]}))],data:{labels:hk.map(hh),datasets:[{data:hg.map(g=>+g.pnl.toFixed(2)),backgroundColor:hg.map(g=>col(g.pnl)),borderRadius:5}]},
       options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:tipExtra(hg)},scales:{x:{ticks:tick,grid:{display:false}},y:{ticks:{...tick,callback:yFmt},grid}}}});
   } else document.getElementById('todNote').textContent=trades.length?'Add a Time when logging trades to see performance by hour.':'No trades yet.';
 
@@ -60,20 +62,20 @@ function renderInsights(){
   document.getElementById('symNote').textContent=arr.length?(trimmed?'Showing your 8 best and 7 worst of '+Object.keys(sm).length+' symbols':Object.keys(sm).length+' symbol'+(arr.length>1?'s':'')):'No trades yet.';
   if(arr.length){
     document.getElementById('symChart').parentElement.style.height=Math.max(150,arr.length*26+40)+'px';
-    symChart=new Chart(document.getElementById('symChart').getContext('2d'),{type:'bar',data:{labels:arr.map(g=>g.k),datasets:[{data:arr.map(g=>+g.pnl.toFixed(2)),backgroundColor:arr.map(g=>col(g.pnl)),borderRadius:4}]},
+    symChart=new Chart(document.getElementById('symChart').getContext('2d'),{type:'bar',plugins:[clickPlugin(i=>openTradePanel('Symbol: '+arr[i].k,{sym:arr[i].k}),{axis:'y'})],data:{labels:arr.map(g=>g.k),datasets:[{data:arr.map(g=>+g.pnl.toFixed(2)),backgroundColor:arr.map(g=>col(g.pnl)),borderRadius:4}]},
       options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:tipExtra(arr)},scales:{x:{ticks:{...tick,callback:yFmt},grid},y:{ticks:tick,grid:{display:false}}}}});
   }
 
   // ---- long vs short / bullish vs bearish / calls vs puts
   const none='<div class="empty-note">No trades yet.</div>';
   const isLong=t=>t.dir==='LONG';
-  document.getElementById('dirTable').innerHTML=!trades.length?none:cmpTable(groupStats(trades.filter(isLong)),groupStats(trades.filter(t=>!isLong(t))),'Long','Short','dir-long','dir-short');
+  document.getElementById('dirTable').innerHTML=!trades.length?none:cmpTable(groupStats(trades.filter(isLong)),groupStats(trades.filter(t=>!isLong(t))),'Long','Short','dir-long','dir-short','dir:LONG','dir:SHORT');
   const BG=groupStats(trades.filter(t=>marketView(t)==='BULL')),RG=groupStats(trades.filter(t=>marketView(t)==='BEAR'));
-  document.getElementById('viewTable').innerHTML=!trades.length?none:cmpTable(BG,RG,'Bullish','Bearish','dir-long','dir-short');
+  document.getElementById('viewTable').innerHTML=!trades.length?none:cmpTable(BG,RG,'Bullish','Bearish','dir-long','dir-short','view:BULL','view:BEAR');
   document.getElementById('viewNote').textContent=trades.length?cmpNote(BG,RG,'Bullish bets','Bearish bets'):'';
   const opts=trades.filter(t=>optTypeOf(t));
   const CG=groupStats(opts.filter(t=>optTypeOf(t)==='CE')),PG=groupStats(opts.filter(t=>optTypeOf(t)==='PE'));
-  document.getElementById('cepeTable').innerHTML=!opts.length?'<div class="empty-note">No option trades found. Options are detected from the instrument or a symbol ending in CE / PE.</div>':cmpTable(CG,PG,'Calls (CE)','Puts (PE)','dir-long','dir-short');
+  document.getElementById('cepeTable').innerHTML=!opts.length?'<div class="empty-note">No option trades found. Options are detected from the instrument or a symbol ending in CE / PE.</div>':cmpTable(CG,PG,'Calls (CE)','Puts (PE)','dir-long','dir-short','opt:CE','opt:PE');
   document.getElementById('cepeNote').textContent=opts.length?cmpNote(CG,PG,'Calls','Puts'):'';
 
   // ---- holding time
@@ -84,10 +86,10 @@ function renderInsights(){
   document.getElementById('holdStats').innerHTML=hv.length?sc('holdAvg','Avg Hold',aAll)+sc('holdWin','Winners Avg',aW,'green')+sc('holdLoss','Losers Avg',aL,'red'):'';
   show('holdChart',hv.length>0);
   if(hv.length){
-    const B=[{l:'<5m',max:5},{l:'5–15m',max:15},{l:'15–30m',max:30},{l:'30–60m',max:60},{l:'1–2h',max:120},{l:'2h+',max:Infinity}].map(b=>({...b,pnl:0,n:0,w:0}));
+    const B=HOLD_BUCKETS.map(b=>({...b,pnl:0,n:0,w:0}));
     hv.forEach(({t,m})=>{const b=B.find(x=>m<x.max);b.pnl+=t.pnl;b.n++;if(t.pnl>0)b.w++;});
     const used=B.filter(b=>b.n);
-    holdChart=new Chart(document.getElementById('holdChart').getContext('2d'),{type:'bar',data:{labels:used.map(b=>b.l),datasets:[{data:used.map(b=>+b.pnl.toFixed(2)),backgroundColor:used.map(b=>col(b.pnl)),borderRadius:5}]},
+    holdChart=new Chart(document.getElementById('holdChart').getContext('2d'),{type:'bar',plugins:[clickPlugin(i=>openTradePanel('Held '+used[i].l,{hold:used[i].l}))],data:{labels:used.map(b=>b.l),datasets:[{data:used.map(b=>+b.pnl.toFixed(2)),backgroundColor:used.map(b=>col(b.pnl)),borderRadius:5}]},
       options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:tipExtra(used)},scales:{x:{ticks:tick,grid:{display:false}},y:{ticks:{...tick,callback:yFmt},grid}}}});
     let msg=hv.length+' of '+trades.length+' trades have both entry and exit time. ';
     if(aW!==null&&aL!==null){

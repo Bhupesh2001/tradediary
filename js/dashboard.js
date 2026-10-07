@@ -25,26 +25,70 @@ function renderDashboard(){
 }
 
 // ── HEATMAP ────────────────────────────────────────────────────────────────
+let hmMode='day';
+let hmShowVal=(function(){try{return localStorage.getItem('td_hm_show')==='show'}catch(e){return false}})();
+const HM_MONTHS=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+// compact signed amount for tiny heatmap cells: 1.2K, 12K, 1.5L (INR lakh), 2Cr
+function fmtCompact(v){
+  const a=Math.abs(v),sg=v<0?'−':(v>0?'+':''),t=(x,dp)=>String(+x.toFixed(dp));
+  if(currentProfile==='INR'){
+    if(a>=1e7)return sg+t(a/1e7,1)+'Cr';
+    if(a>=1e5)return sg+t(a/1e5,1)+'L';
+  }
+  if(a>=1e6)return sg+t(a/1e6,1)+'M';
+  if(a>=1e3)return sg+t(a/1e3,a>=1e4?0:1)+'K';
+  return sg+t(a,a<10?1:0);
+}
 function renderHeatmap(){
   const trades=getTrades(),dayPnl={};
   trades.forEach(t=>{dayPnl[t.date]=(dayPnl[t.date]||0)+t.pnl;});
-  const months=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-  document.getElementById('hmMonthLabel').textContent=months[hmMonth]+' '+hmYear;
-  const hm=document.getElementById('heatmap');hm.innerHTML='';
+  const hm=document.getElementById('heatmap'),hint=document.getElementById('hmHint');
+  document.querySelectorAll('#hmModeSeg button').forEach(b=>b.classList.toggle('active',b.dataset.m===hmMode));
+  document.querySelectorAll('#hmValSeg button').forEach(b=>b.classList.toggle('active',(b.dataset.v==='show')===hmShowVal));
+  document.getElementById('hmClearBtn').style.display=hmMode==='day'?'':'none';
+  document.querySelector('.hm-labels').style.display=hmMode==='day'?'':'none';
+  hm.innerHTML='';
+  if(hmMode==='month'){
+    document.getElementById('hmMonthLabel').textContent=String(hmYear);
+    hm.className='hm-months';
+    const agg=Array.from({length:12},()=>({pnl:0,n:0,w:0}));
+    trades.forEach(t=>{if(+t.date.slice(0,4)===hmYear){const g=agg[+t.date.slice(5,7)-1];g.pnl+=t.pnl;g.n++;if(t.pnl>0)g.w++;}});
+    const now=new Date();
+    agg.forEach((g,m)=>{
+      const el=document.createElement('div');
+      el.className='hm-mon '+(!g.n?'neutral':g.pnl>0?'win':g.pnl<0?'loss':'neutral')+((hmYear===now.getFullYear()&&m===now.getMonth())?' cur':'');
+      el.innerHTML='<div class="mn">'+HM_MONTHS[m]+'</div>'+(hmShowVal&&g.n?'<div class="mv">'+fmtSigned(g.pnl)+'</div>':'')+'<div class="mc">'+(g.n?g.n+' trade'+(g.n>1?'s':''):'—')+'</div>';
+      el.title=HM_MONTHS[m]+' '+hmYear+': '+(g.n?fmtSigned(g.pnl)+' · '+g.n+' trade'+(g.n>1?'s':'')+' · '+Math.round(g.w/g.n*100)+'% win':'no trades')+' — click for the daily view';
+      el.onclick=()=>{hmMonth=m;hmMode='day';renderHeatmap();renderDayPanel();};
+      hm.appendChild(el);
+    });
+    const tot=agg.reduce((a,g)=>({pnl:a.pnl+g.pnl,n:a.n+g.n}),{pnl:0,n:0});
+    hint.textContent=tot.n?hmYear+': '+fmtSigned(tot.pnl)+' · '+tot.n+' trades · click a month for its daily view':'Click a month to open its daily view';
+    return;
+  }
+  document.getElementById('hmMonthLabel').textContent=HM_MONTHS[hmMonth]+' '+hmYear;
+  hm.className='heatmap'+(hmShowVal?' show':'');
   const first=new Date(hmYear,hmMonth,1).getDay();
   const days=new Date(hmYear,hmMonth+1,0).getDate();
+  const mKey=hmYear+'-'+String(hmMonth+1).padStart(2,'0');
+  let mp=0,mn=0;trades.forEach(t=>{if(t.date.slice(0,7)===mKey){mp+=t.pnl;mn++;}});
   for(let i=0;i<first;i++){const e=document.createElement('div');e.className='hm-day empty';hm.appendChild(e);}
-  for(let d=1;d<=days;d++){
-    const key=`${hmYear}-${String(hmMonth+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+  for(let dd=1;dd<=days;dd++){
+    const key=mKey+'-'+String(dd).padStart(2,'0');
     const el=document.createElement('div');
     const v=dayPnl[key];
-    el.textContent=d;
+    el.innerHTML='<span class="hm-d">'+dd+'</span>'+(hmShowVal&&v!==undefined?'<span class="hm-val">'+fmtCompact(v)+'</span>':'');
     el.className='hm-day '+(v===undefined?'neutral':v>0?'win':'loss')+(selectedDates.has(key)?' selected':'');
-    el.title=v!==undefined?fmtPnl(v):'No trades';
+    el.title=v!==undefined?fmtSigned(v):'No trades';
     el.onclick=e=>handleHmClick(key,e);
     hm.appendChild(el);
   }
+  hint.textContent=(mn?HM_MONTHS[hmMonth]+': '+fmtSigned(mp)+' · '+mn+' trade'+(mn>1?'s':'')+' · ':'')+'Tap · Shift+tap range · Ctrl+tap multi';
 }
+function setHmMode(m){hmMode=m;renderHeatmap();}
+function setHmShow(v){hmShowVal=(v==='show');try{localStorage.setItem('td_hm_show',v)}catch(e){}renderHeatmap();}
+function hmPrev(){if(hmMode==='month'){hmYear--;renderHeatmap();}else hmPrevMonth();}
+function hmNext(){if(hmMode==='month'){hmYear++;renderHeatmap();}else hmNextMonth();}
 function handleHmClick(k,e){
   if(e.shiftKey&&lastClickedDate)getAllDatesInRange(lastClickedDate,k).forEach(d=>selectedDates.add(d));
   else if(e.ctrlKey||e.metaKey){selectedDates.has(k)?selectedDates.delete(k):selectedDates.add(k);}

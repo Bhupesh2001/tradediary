@@ -9,7 +9,7 @@ const INFO = {
   profitFactor:{t:'Profit Factor',d:'How much you win for every ₹/$1 you lose. Above 1.0 is profitable, 1.5+ is solid, 2.0+ is excellent. Shows “—” until you have at least one losing trade.',f:'gross profit ÷ gross loss'},
   equityCurve:{t:'Equity Curve',d:'Running total of your net P&L, trade by trade. A steadily rising line with shallow dips suggests consistency; sharp drops point to losing streaks or oversized losses.'},
   winLoss:{t:'Win / Loss',d:'How many trades were winners (▲), losers (▼) and breakeven (—).'},
-  heatmap:{t:'Activity Heatmap',d:'Calendar of your trading days. Green = net profit that day, red = net loss. Click a day to list its trades; Shift-click selects a range; Ctrl/Cmd-click adds or removes single days.'},
+  heatmap:{t:'Activity Heatmap',d:'Calendar of your trading days. Switch between Daily and Monthly views (click a month to open its daily view) and choose whether each day / month shows its P&L directly or only on hover. Green = net profit, red = net loss. In the daily view click a day to list its trades; Shift-click selects a range; Ctrl/Cmd-click adds or removes single days.'},
   // analytics (existing)
   byStrategy:{t:'P&L by Strategy',d:'Net P&L grouped by the strategy name on each trade. Trades with no strategy are grouped under “Other”. Shows which setups actually pay you.'},
   byDow:{t:'P&L by Day of Week',d:'Net P&L grouped by weekday. Useful for spotting days where you consistently lose and might skip trading.'},
@@ -82,6 +82,12 @@ const INFO = {
   cepeTable:{t:'Calls (CE) vs Puts (PE)',d:'Options only: performance on Calls (CE) vs Puts (PE), whether bought or sold. Options are detected from the imported instrument or from a symbol ending in CE / PE.'},
   recentBreaks:{t:'Recent Rule Breaks',d:'Trades and days from the last 30 days that violated your rules, with the reason for each.'}
 };
+
+// "click to see the trades" hints
+['byStrategy','byDow','byMonth','todChart','symChart','holdChart','emotionDist'].forEach(k=>{INFO[k].d+=' Click a bar to list the matching trades in a side panel.';});
+INFO.emotionPnl.d+=' Click a row to list those trades.';
+['dirTable','viewTable','cepeTable'].forEach(k=>{INFO[k].d+=' Click a column heading to list those trades.';});
+['avgWin','avgLoss','bestTrade','worstTrade','bestDay','worstDay','maxDD','curDD','winStreak','lossStreak','curStreak','greenDays'].forEach(k=>{INFO[k].d+=' Click the card to list the related trades.';});
 
 let _tipEl=null,_tipFor=null;
 function _tip(){

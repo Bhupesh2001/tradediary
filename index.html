@@ -53,7 +53,7 @@
 
 <!-- Sidebar -->
 <aside class="sidebar" id="sidebar">
-  <div class="logo">Trade<span>Diary</span></div>
+  <div class="logo"><span class="logo-full">Trade<em>Diary</em></span><span class="logo-mini">T<em>D</em></span></div>
   <nav class="nav">
     <div class="nav-item active" onclick="setPage('dashboard');closeSidebar()">
       <svg class="nav-icon" viewBox="0 0 16 16" fill="currentColor"><rect x="1" y="1" width="6" height="6" rx="1.5"/><rect x="9" y="1" width="6" height="6" rx="1.5"/><rect x="1" y="9" width="6" height="6" rx="1.5"/><rect x="9" y="9" width="6" height="6" rx="1.5"/></svg>Dashboard
@@ -83,8 +83,8 @@
   <div class="sidebar-footer">
     <div class="profile-switcher">
       <div class="profile-label">Trading Profile</div>
-      <div class="profile-btn active-profile" id="btnINR" onclick="switchProfile('INR')"><span class="profile-dot dot-inr"></span>Stocks ₹ INR</div>
-      <div class="profile-btn" id="btnUSD" onclick="switchProfile('USD')"><span class="profile-dot dot-usd"></span>Crypto $ USD</div>
+      <div class="profile-btn active-profile" id="btnINR" data-sym="₹" onclick="switchProfile('INR')"><span class="profile-dot dot-inr"></span>Stocks ₹ INR</div>
+      <div class="profile-btn" id="btnUSD" data-sym="$" onclick="switchProfile('USD')"><span class="profile-dot dot-usd"></span>Crypto $ USD</div>
     </div>
     <div class="account-section">
       <div class="profile-label">Account</div>
@@ -116,11 +116,33 @@
     <div class="np-body" id="npBody"></div>
   </div>
 
+  <div class="tp-panel" id="tradePanel">
+    <div class="np-header"><span class="np-title" id="tpTitle">Trades</span><button class="np-close" onclick="closeTradePanel()" title="Close">✕</button></div>
+    <div class="tp-summary" id="tpSummary"></div>
+    <div class="tp-chiprow"><div class="tp-chips" id="tpChips"></div><button class="btn btn-ghost btn-sm" id="tpFiltBtn" onclick="tpToggleFilters()">⚙ Filters</button></div>
+    <div class="tp-filters" id="tpFilters" style="display:none">
+      <label class="tp-lbl">Symbol<select class="form-select" id="tpf_sym"></select></label>
+      <label class="tp-lbl">Result<select class="form-select" id="tpf_result"></select></label>
+      <label class="tp-lbl">Direction<select class="form-select" id="tpf_dir"></select></label>
+      <label class="tp-lbl">Strategy<select class="form-select" id="tpf_strat"></select></label>
+      <label class="tp-lbl">Emotion<select class="form-select" id="tpf_emotion"></select></label>
+      <label class="tp-lbl">Weekday<select class="form-select" id="tpf_dow"></select></label>
+      <label class="tp-lbl">Entry hour<select class="form-select" id="tpf_hour"></select></label>
+      <label class="tp-lbl">Holding time<select class="form-select" id="tpf_hold"></select></label>
+      <label class="tp-lbl">Option type<select class="form-select" id="tpf_opt"></select></label>
+      <label class="tp-lbl">Market view<select class="form-select" id="tpf_view"></select></label>
+      <label class="tp-lbl">From<input class="form-input" type="date" id="tpf_from"></label>
+      <label class="tp-lbl">To<input class="form-input" type="date" id="tpf_to"></label>
+      <div class="tp-reset"><button class="btn btn-ghost btn-sm" onclick="tpClearAll()">Clear all filters</button></div>
+    </div>
+    <div class="tp-list" id="tpList"></div>
+  </div>
+
   <!-- Main scroll area -->
   <div class="main" id="mainScroll">
     <div class="topbar">
       <div class="topbar-left">
-        <button class="menu-btn" onclick="openSidebar()">☰</button>
+        <button class="menu-btn" onclick="openSidebar()" title="Collapse / expand menu">☰</button>
         <div class="page-title" id="pageTitle">Dashboard</div>
       </div>
       <div class="topbar-right">
@@ -160,15 +182,19 @@
         <div class="card-header">
           <span class="card-title" data-info="heatmap">Activity Heatmap</span>
           <div class="hm-nav">
-            <button onclick="hmPrevMonth()">‹</button>
-            <span class="hm-month-label" id="hmMonthLabel"></span>
-            <button onclick="hmNextMonth()">›</button>
-            <button onclick="clearHmSelection()" style="font-size:10px;padding:2px 7px;color:var(--muted)">Clear</button>
+            <button onclick="hmPrev()">‹</button>
+            <span class="hm-month-label" id="hmMonthLabel" onclick="setHmMode('month')" title="Switch to the monthly view"></span>
+            <button onclick="hmNext()">›</button>
+            <button id="hmClearBtn" onclick="clearHmSelection()" style="font-size:10px;padding:2px 7px;color:var(--muted)">Clear</button>
           </div>
+        </div>
+        <div class="hm-toolbar">
+          <div class="seg" id="hmModeSeg"><button data-m="day" onclick="setHmMode('day')">Daily</button><button data-m="month" onclick="setHmMode('month')">Monthly</button></div>
+          <div class="seg" id="hmValSeg"><button data-v="show" onclick="setHmShow('show')">Show P&amp;L</button><button data-v="hover" onclick="setHmShow('hover')">On hover</button></div>
         </div>
         <div class="hm-labels"><div class="hm-lbl">Su</div><div class="hm-lbl">Mo</div><div class="hm-lbl">Tu</div><div class="hm-lbl">We</div><div class="hm-lbl">Th</div><div class="hm-lbl">Fr</div><div class="hm-lbl">Sa</div></div>
         <div class="heatmap" id="heatmap"></div>
-        <div style="font-size:10px;color:var(--muted);margin-top:6px">Tap · Shift+tap range · Ctrl+tap multi</div>
+        <div id="hmHint" style="font-size:10px;color:var(--muted);margin-top:6px">Tap · Shift+tap range · Ctrl+tap multi</div>
       </div>
       <div class="day-trades-panel" id="dayTradesPanel" style="display:none">
         <div class="card-header"><span class="card-title" id="dayPanelTitle">Selected trades</span><span class="badge badge-blue" id="dayPanelCount">0</span></div>
@@ -658,6 +684,7 @@
 <script src="js/metrics.js"></script>
 <script src="js/rules.js"></script>
 <script src="js/insights.js"></script>
+<script src="js/panel.js"></script>
 <script src="js/import.js"></script>
 <script src="js/notes.js"></script>
 <script src="js/trade-modal.js"></script>

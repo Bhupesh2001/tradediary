@@ -1,9 +1,25 @@
 // ── MOBILE SIDEBAR ─────────────────────────────────────────────────────────
-function openSidebar(){document.getElementById('sidebar').classList.add('mobile-open');document.getElementById('drawerOverlay').classList.add('open');}
+function isDesktop(){return !!(window.matchMedia&&window.matchMedia('(min-width:769px)').matches)}
+function toggleSidebarCollapse(){
+  const c=!document.body.classList.contains('sb-collapsed');
+  document.body.classList.toggle('sb-collapsed',c);
+  try{localStorage.setItem('td_sb_collapsed',c?'1':'0')}catch(e){}
+}
+function applySidebarState(){
+  let c=false;try{c=localStorage.getItem('td_sb_collapsed')==='1'}catch(e){}
+  document.body.classList.toggle('sb-collapsed',c);
+  document.querySelectorAll('.nav-item').forEach(n=>{n.title=n.textContent.trim();});   // tooltips when only icons show
+}
+// ☰ collapses the sidebar on desktop, opens the drawer on mobile
+function openSidebar(){
+  if(isDesktop()){toggleSidebarCollapse();return;}
+  document.getElementById('sidebar').classList.add('mobile-open');document.getElementById('drawerOverlay').classList.add('open');
+}
 function closeSidebar(){document.getElementById('sidebar').classList.remove('mobile-open');document.getElementById('drawerOverlay').classList.remove('open');}
 
 // ── NAVIGATION ─────────────────────────────────────────────────────────────
 function setPage(p){
+  if(p!==currentPage)closeTradePanel();
   currentPage=p;
   ['dashboard','log','analytics','psychology','ai','watchlist','rules'].forEach(id=>{
     const el=document.getElementById('page'+id.charAt(0).toUpperCase()+id.slice(1));
@@ -26,6 +42,7 @@ function renderPage(p){
   if(p==='watchlist')renderWatchlist();
   if(p==='rules')renderRules();
   updateRuleBanner();
+  tpRefresh();
 }
 
 // ── STATS ──────────────────────────────────────────────────────────────────
