@@ -116,7 +116,7 @@ function saveTrade(){
   else allTrades.push(obj);
   saveTradeFB(obj);
   closeModal();renderPage(currentPage);
-  if(selectedDates.size)renderDayPanel();
+  tpRefresh();
   if(document.getElementById('notesPanel').classList.contains('open')){const i=npTrades.findIndex(t=>t.id===obj.id);if(i>=0){npTrades[i]=obj;renderNotesPanel();}}
 }
 
@@ -141,7 +141,7 @@ function confirmDelete(){
   allTrades=allTrades.filter(t=>t.id!==id);
   deleteTradeFB(id);
   closeConfirm();renderPage(currentPage);
-  if(selectedDates.size)renderDayPanel();
+  tpRefresh();
   const i=npTrades.findIndex(t=>t.id===id);
   if(i>=0){npTrades.splice(i,1);if(npTrades.length){npIndex=Math.min(npIndex,npTrades.length-1);renderNotesPanel();}else closeNotesPanel();}
 }

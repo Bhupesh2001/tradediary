@@ -9,7 +9,7 @@ const INFO = {
   profitFactor:{t:'Profit Factor',d:'How much you win for every ₹/$1 you lose. Above 1.0 is profitable, 1.5+ is solid, 2.0+ is excellent. Shows “—” until you have at least one losing trade.',f:'gross profit ÷ gross loss'},
   equityCurve:{t:'Equity Curve',d:'Running total of your net P&L, trade by trade. A steadily rising line with shallow dips suggests consistency; sharp drops point to losing streaks or oversized losses.'},
   winLoss:{t:'Win / Loss',d:'How many trades were winners (▲), losers (▼) and breakeven (—).'},
-  heatmap:{t:'Activity Heatmap',d:'Calendar of your trading days. Switch between Daily and Monthly views (click a month to open its daily view) and choose whether each day / month shows its P&L directly or only on hover. Green = net profit, red = net loss. In the daily view click a day to list its trades; Shift-click selects a range; Ctrl/Cmd-click adds or removes single days.'},
+  heatmap:{t:'P&L Calendar',d:'Your trading days at a glance. The strip at the top shows every month of the year — click one to open it below. Click a day to see its trades in the side panel; Shift-click selects a range; Ctrl/Cmd-click adds or removes single days. Click a Week cell to see that whole week.'},
   // analytics (existing)
   byStrategy:{t:'P&L by Strategy',d:'Net P&L grouped by the strategy name on each trade. Trades with no strategy are grouped under “Other”. Shows which setups actually pay you.'},
   byDow:{t:'P&L by Day of Week',d:'Net P&L grouped by weekday. Useful for spotting days where you consistently lose and might skip trading.'},
@@ -80,6 +80,14 @@ const INFO = {
   importJson:{t:'Import Trades from JSON',d:'Paste a JSON list of completed trades produced by your broker AI. Direction is set automatically from the opening order (Buy first = Long, Sell first = Short). You then add emotion, stop loss, strategy and comments, review the P&L, and save. Trades already in your journal are detected and unticked.'},
   viewTable:{t:'Bullish vs Bearish Bets',d:'Compares trades by the market view they express, whatever the instrument. Bullish = profits when the market rises (long equity/futures, bought CE, sold PE). Bearish = profits when it falls (short equity/futures, bought PE, sold CE). Shows how you perform in rising vs falling markets.'},
   cepeTable:{t:'Calls (CE) vs Puts (PE)',d:'Options only: performance on Calls (CE) vs Puts (PE), whether bought or sold. Options are detected from the imported instrument or from a symbol ending in CE / PE.'},
+  calMPnl:{t:'Monthly P&L',d:'Net P&L (after charges) for every trade in the displayed month.'},
+  calDays:{t:'Trading Days',d:'Distinct calendar days with at least one trade this month, split into days that ended green (net profit) and red (net loss). The rest were breakeven.'},
+  calTrades:{t:'Trades',d:'Total trades this month, and how many were winners (W) or losers (L). The rest were breakeven.'},
+  calWinRate:{t:'Win Rate',d:'Share of this month\'s trades that were winners.',f:'winning trades ÷ total trades'},
+  calBest:{t:'Best Day',d:'The calendar day with the highest net P&L this month (all trades on that date added together).'},
+  calWorst:{t:'Worst Day',d:'The calendar day with the lowest net P&L this month.'},
+  calActive:{t:'Most Active Day',d:'The calendar day with the most trades this month.'},
+  calAvg:{t:'Avg / Day',d:'Monthly net P&L divided by the number of trading days this month (not calendar days).',f:'monthly P&L ÷ trading days'},
   recentBreaks:{t:'Recent Rule Breaks',d:'Trades and days from the last 30 days that violated your rules, with the reason for each.'}
 };
 

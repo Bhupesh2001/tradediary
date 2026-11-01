@@ -2,13 +2,14 @@
 const TP={open:false,label:'',F:null,edited:false,profile:null,filtersOpen:false};
 const DOW_NAMES=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
 const TP_CTRL={sym:'tpf_sym',result:'tpf_result',dir:'tpf_dir',strat:'tpf_strat',emotion:'tpf_emotion',dow:'tpf_dow',hour:'tpf_hour',hold:'tpf_hold',opt:'tpf_opt',view:'tpf_view',from:'tpf_from',to:'tpf_to'};
-function emptyF(){return {sym:'',result:'',dir:'',emotion:'',strat:'',from:'',to:'',dow:'',hour:'',hold:'',opt:'',view:'',ids:null}}
+function emptyF(){return {sym:'',result:'',dir:'',emotion:'',strat:'',from:'',to:'',dow:'',hour:'',hold:'',opt:'',view:'',ids:null,dates:null}}
 function dowOf(date){const p=String(date).split('-');return new Date(+p[0],+p[1]-1,+p[2]).getDay()}
 const has=v=>v!==''&&v!==null&&v!==undefined;
 
 // Does a trade pass the panel filters? (pure)
 function tpMatch(t,F){
   if(F.ids&&!F.ids.includes(t.id))return false;
+  if(F.dates&&!F.dates.includes(t.date))return false;
   if(F.sym&&String(t.sym||'').toUpperCase()!==String(F.sym).toUpperCase())return false;
   if(F.result==='win'&&!(t.pnl>0))return false;
   if(F.result==='loss'&&!(t.pnl<0))return false;
@@ -37,9 +38,9 @@ function clickPlugin(fn,opts){
   }};
 }
 
-function openTradePanel(label,filters){
+function openTradePanel(label,filters,source){
   if(typeof closeNotesPanel==='function')closeNotesPanel();
-  TP.label=label;TP.F=Object.assign(emptyF(),filters||{});TP.edited=false;TP.profile=currentProfile;TP.open=true;
+  TP.label=label;TP.F=Object.assign(emptyF(),filters||{});TP.edited=false;TP.profile=currentProfile;TP.open=true;TP.source=source||'click';
   document.getElementById('tradePanel').classList.add('open');
   document.getElementById('mainScroll').classList.add('tp-open');
   document.getElementById('tpFilters').style.display=TP.filtersOpen?'grid':'none';
@@ -88,6 +89,7 @@ function tpReadControls(){Object.keys(TP_CTRL).forEach(k=>{TP.F[k]=document.getE
 function tpChips(){
   const F=TP.F,c=[];
   if(F.ids)c.push(['ids',F.ids.length+' specific trade'+(F.ids.length===1?'':'s')]);
+  if(F.dates)c.push(['dates',F.dates.length===1?'Date: '+F.dates[0]:F.dates.length+' days selected']);
   if(F.sym)c.push(['sym','Symbol: '+F.sym]);
   if(F.result)c.push(['result',{win:'Winners',loss:'Losers',be:'Breakeven'}[F.result]]);
   if(F.dir)c.push(['dir',F.dir==='LONG'?'Long':'Short']);
@@ -137,7 +139,7 @@ function tpRefresh(){
   P.addEventListener('click',e=>{
     const ed=e.target.closest('[data-edit]');if(ed){openEditModal(ed.dataset.edit);return;}
     const dl=e.target.closest('[data-del]');if(dl){askDelete(dl.dataset.del);return;}
-    const rm=e.target.closest('[data-rm]');if(rm)tpRemoveChip(rm.dataset.rm);
+    const rm=e.target.closest('[data-rm]');if(rm){if(rm.dataset.rm==='dates'&&typeof clearHmSelection==='function')clearHmSelection();else tpRemoveChip(rm.dataset.rm);}
   });
   const onF=e=>{if(e.target.id&&e.target.id.indexOf('tpf_')===0){tpReadControls();TP.edited=true;tpRender();}};
   P.addEventListener('input',onF);P.addEventListener('change',onF);

@@ -178,34 +178,26 @@
           </div>
         </div>
       </div>
-      <div class="card">
+      <div class="card cal-card">
         <div class="card-header">
-          <span class="card-title" data-info="heatmap">Activity Heatmap</span>
-          <div class="hm-nav">
-            <button onclick="hmPrev()">‹</button>
-            <span class="hm-month-label" id="hmMonthLabel" onclick="setHmMode('month')" title="Switch to the monthly view"></span>
-            <button onclick="hmNext()">›</button>
-            <button id="hmClearBtn" onclick="clearHmSelection()" style="font-size:10px;padding:2px 7px;color:var(--muted)">Clear</button>
+          <div><span class="card-title" data-info="heatmap">P&amp;L Calendar</span><div class="cal-subtitle">Realized P&amp;L at a glance</div></div>
+          <button id="calClearBtn" onclick="clearHmSelection()" class="btn btn-ghost btn-sm" style="display:none">Clear selection</button>
+        </div>
+        <div class="cal-strip-row">
+          <button class="cal-yr-nav" onclick="hmPrev()">‹</button>
+          <span class="cal-year" id="calYear"></span>
+          <div class="cal-month-strip" id="calMonthStrip"></div>
+          <button class="cal-yr-nav" onclick="hmNext()">›</button>
+        </div>
+        <div class="cal-stats" id="calStats"></div>
+        <div class="cal-month-title" id="calMonthTitle"></div>
+        <div class="cal-grid-wrap">
+          <div class="cal-grid">
+            <div class="cal-week-head" id="calWeekHead"></div>
+            <div id="calBody"></div>
           </div>
         </div>
-        <div class="hm-toolbar">
-          <div class="seg" id="hmModeSeg"><button data-m="day" onclick="setHmMode('day')">Daily</button><button data-m="month" onclick="setHmMode('month')">Monthly</button></div>
-          <div class="seg" id="hmValSeg"><button data-v="show" onclick="setHmShow('show')">Show P&amp;L</button><button data-v="hover" onclick="setHmShow('hover')">On hover</button></div>
-        </div>
-        <div class="hm-labels"><div class="hm-lbl">Su</div><div class="hm-lbl">Mo</div><div class="hm-lbl">Tu</div><div class="hm-lbl">We</div><div class="hm-lbl">Th</div><div class="hm-lbl">Fr</div><div class="hm-lbl">Sa</div></div>
-        <div class="heatmap" id="heatmap"></div>
-        <div id="hmHint" style="font-size:10px;color:var(--muted);margin-top:6px">Tap · Shift+tap range · Ctrl+tap multi</div>
-      </div>
-      <div class="day-trades-panel" id="dayTradesPanel" style="display:none">
-        <div class="card-header"><span class="card-title" id="dayPanelTitle">Selected trades</span><span class="badge badge-blue" id="dayPanelCount">0</span></div>
-        <div class="filter-row">
-          <input class="filter-input" id="fSymbol" placeholder="Symbol..." oninput="renderDayPanel()" style="width:90px"/>
-          <select class="filter-select" id="fPnl" onchange="renderDayPanel()"><option value="">All P&L</option><option value="profit">Profit</option><option value="loss">Loss</option></select>
-          <select class="filter-select" id="fEmotion" onchange="renderDayPanel()"><option value="">All emotions</option><option value="calm">Calm</option><option value="fear">Fear</option><option value="greed">Greed</option><option value="revenge">Revenge</option><option value="confident">Confident</option><option value="disciplined">Disciplined</option></select>
-          <select class="filter-select" id="fStrategy" onchange="renderDayPanel()"><option value="">All strategies</option></select>
-          <select class="filter-select" id="fSort" onchange="renderDayPanel()"><option value="date-desc">Date ↓</option><option value="date-asc">Date ↑</option><option value="pnl-desc">P&L ↓</option><option value="pnl-asc">P&L ↑</option></select>
-        </div>
-        <div style="overflow-x:auto"><table class="trade-table"><thead><tr><th>Date</th><th>Symbol</th><th>Dir</th><th>Entry</th><th>Exit</th><th>Qty</th><th data-info="pnlCol">P&L</th><th>Emotion</th><th>Strategy</th><th>Notes</th><th>Actions</th></tr></thead><tbody id="dayTradesTbody"></tbody></table></div>
+        <div class="cal-hint">Click a day · Shift+click for a range · Ctrl/Cmd+click to add days</div>
       </div>
     </div>
 

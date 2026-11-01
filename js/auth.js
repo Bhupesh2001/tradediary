@@ -68,6 +68,9 @@ window._onLogout = function(){
   allTrades = [];
   allSetups = [];
   allRules = {};
+  selectedDates.clear();
+  lastClickedDate = null;
+  if(TP.open)closeTradePanel();
   rulesListenerActive = false;
   document.getElementById('authScreen').style.display='flex';
   document.getElementById('appScreen').style.display='none';
@@ -83,7 +86,7 @@ function startFirebaseListener(){
     normalizeLegacySide();
     setSyncStatus('synced','Synced ✓');
     renderPage(currentPage);
-    if(selectedDates.size)renderDayPanel();
+    tpRefresh();
   });
 }
 
