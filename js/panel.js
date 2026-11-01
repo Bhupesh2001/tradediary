@@ -1,8 +1,8 @@
 // ── RIGHT-SIDE TRADES PANEL (opened by clicking analytics) ───────────────────
 const TP={open:false,label:'',F:null,edited:false,profile:null,filtersOpen:false};
 const DOW_NAMES=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
-const TP_CTRL={sym:'tpf_sym',result:'tpf_result',dir:'tpf_dir',strat:'tpf_strat',emotion:'tpf_emotion',dow:'tpf_dow',hour:'tpf_hour',hold:'tpf_hold',opt:'tpf_opt',view:'tpf_view',from:'tpf_from',to:'tpf_to'};
-function emptyF(){return {sym:'',result:'',dir:'',emotion:'',strat:'',from:'',to:'',dow:'',hour:'',hold:'',opt:'',view:'',ids:null,dates:null}}
+const TP_CTRL={sym:'tpf_sym',result:'tpf_result',dir:'tpf_dir',strat:'tpf_strat',emotion:'tpf_emotion',dow:'tpf_dow',hour:'tpf_hour',hold:'tpf_hold',opt:'tpf_opt',view:'tpf_view',category:'tpf_category',from:'tpf_from',to:'tpf_to'};
+function emptyF(){return {sym:'',result:'',dir:'',emotion:'',strat:'',from:'',to:'',dow:'',hour:'',hold:'',opt:'',view:'',category:'',ids:null,dates:null}}
 function dowOf(date){const p=String(date).split('-');return new Date(+p[0],+p[1]-1,+p[2]).getDay()}
 const has=v=>v!==''&&v!==null&&v!==undefined;
 
@@ -24,6 +24,7 @@ function tpMatch(t,F){
   if(F.hold){const m=holdMinutes(t);if(m===null||holdBucket(m)!==F.hold)return false;}
   if(F.opt){const o=optTypeOf(t);if(F.opt==='NONE'){if(o)return false;}else if(o!==F.opt)return false;}
   if(F.view&&marketView(t)!==F.view)return false;
+  if(F.category&&tradeCategory(t)!==F.category)return false;
   return true;
 }
 
@@ -56,6 +57,22 @@ function openMonthPanel(ym){
   const names=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
   openTradePanel('Trades in '+names[+m-1]+' '+y,{from:y+'-'+m+'-01',to:y+'-'+m+'-'+String(last).padStart(2,'0')});
 }
+function tpToggleCatBulk(){
+  const box=document.getElementById('tpCatBulk');
+  const open=box.style.display==='none';
+  box.style.display=open?'flex':'none';
+  document.getElementById('tpCatBtn').classList.toggle('active',open);
+}
+function tpBulkSetCategory(cat){
+  const trades=getTrades().filter(t=>tpMatch(t,TP.F));
+  if(!trades.length){alert('No trades are currently shown to update.');return;}
+  genericConfirm('Set trade type to "'+CAT_LABELS[cat]+'" for '+trades.length+' trade'+(trades.length>1?'s':'')+' currently shown?', ()=>{
+    trades.forEach(t=>{t.category=cat;saveTradeFB(t);});
+    document.getElementById('tpCatBulk').style.display='none';
+    document.getElementById('tpCatBtn').classList.remove('active');
+    tpRender();
+  });
+}
 function tpToggleFilters(){
   TP.filtersOpen=!TP.filtersOpen;
   document.getElementById('tpFilters').style.display=TP.filtersOpen?'grid':'none';
@@ -81,6 +98,7 @@ function tpBuildControls(){
   fill('hold',[['','Any holding time'],...HOLD_BUCKETS.map(b=>[b.l,b.l])]);
   fill('opt',[['','Options & others'],['CE','Calls (CE)'],['PE','Puts (PE)'],['NONE','Not an option']]);
   fill('view',[['','Any market view'],['BULL','Bullish'],['BEAR','Bearish']]);
+  fill('category',[['','Any trade type'],['intraday','Intraday'],['swing','Swing'],['fno','F&O'],['uncategorized','Uncategorized']]);
   document.getElementById('tpf_from').value=F.from||'';
   document.getElementById('tpf_to').value=F.to||'';
 }
@@ -102,13 +120,14 @@ function tpChips(){
   if(F.hold)c.push(['hold','Held '+F.hold]);
   if(F.opt)c.push(['opt',{CE:'Calls (CE)',PE:'Puts (PE)',NONE:'Not an option'}[F.opt]]);
   if(F.view)c.push(['view',F.view==='BULL'?'Bullish bets':'Bearish bets']);
+  if(F.category)c.push(['category',CAT_LABELS[F.category]||F.category]);
   return c;
 }
 function tpRowHtml(t){
   const s=t.profile==='USD'?'$':'₹';
   const notes=t.notes?'<div class="tp-notes">'+escHtml(t.notes.slice(0,140))+(t.notes.length>140?'…':'')+'</div>':'';
-  return '<div class="tp-row"><div class="tp-r1"><span class="tp-sym">'+escHtml(t.sym)+'</span><span class="'+(t.dir==='LONG'?'dir-long':'dir-short')+'">'+escHtml(t.dir)+'</span><span class="tp-pnl '+(t.pnl>=0?'pnl-pos':'pnl-neg')+'">'+fmtSigned(t.pnl)+'</span></div>'+
-    '<div class="tp-r2">'+escHtml(t.date)+(realTime(t)?' '+escHtml(t.time):'')+(t.exitTime&&realTime(t)?' → '+escHtml(t.exitTime):'')+' · qty '+t.qty+' · '+t.entry+' → '+t.exit+(t.fees?' · fees '+s+t.fees:'')+(t.images&&t.images.length?' · 📷'+t.images.length:'')+'</div>'+
+  return '<div class="tp-row"><div class="tp-r1"><span class="tp-sym">'+escHtml(t.sym)+'</span><span class="'+(t.dir==='LONG'?'dir-long':'dir-short')+'">'+escHtml(t.dir)+'</span><span class="tp-pnl '+(t.pnl>=0?'pnl-pos':'pnl-neg')+'">'+fmtSigned(t.pnl)+' <span style="opacity:.75;font-weight:600">('+fmtPct(tradePnlPct(t))+')</span></span></div>'+
+    '<div class="tp-r2">'+escHtml(t.date)+(realTime(t)?' '+escHtml(t.time):'')+(t.exitTime&&realTime(t)?' → '+escHtml(t.exitTime):'')+' · qty '+t.qty+' · '+t.entry+' → '+t.exit+' · '+s+tradeAmountUsed(t).toLocaleString(t.profile==='INR'?'en-IN':'en-US',{maximumFractionDigits:t.profile==='USD'?4:2})+(t.fees?' · fees '+s+t.fees:'')+(t.images&&t.images.length?' · 📷'+t.images.length:'')+'</div>'+
     '<div class="tp-r3">'+(t.strat?'<span class="tp-tag">'+escHtml(t.strat)+'</span>':'')+'<span class="em-tag '+escHtml(t.emotion||'')+'" style="padding:1px 8px;font-size:9px">'+escHtml(t.emotion||'—')+'</span>'+
     '<span class="tp-actions"><button class="btn btn-ghost btn-sm" data-edit="'+escHtml(t.id)+'">Edit</button><button class="btn btn-danger btn-sm" data-del="'+escHtml(t.id)+'">Del</button></span></div>'+notes+'</div>';
 }

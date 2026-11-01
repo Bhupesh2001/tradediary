@@ -20,7 +20,8 @@ const INFO = {
   emotionPnl:{t:'Emotion vs P&L',d:'Net P&L grouped by the emotion you logged. Shows which mental states make or lose you money.'},
   insights:{t:'Insights',d:'Automatic observations from your emotion data: best and worst state, and how many revenge trades you took.'},
   // table / form
-  pnlCol:{t:'P&L (net)',d:'Trade profit or loss after charges. Hover a value to see gross P&L and the charges deducted.',f:'gross P&L − charges'},
+  pnlCol:{t:'P&L (net)',d:'Trade profit or loss after charges. The percentage in brackets is the return on the Amount column for this trade. Hover a value to see gross P&L and the charges deducted.',f:'gross P&L − charges'},
+  amountCol:{t:'Amount',d:'Capital committed to this one trade. For INR, that\u2019s quantity × entry price. For USD/crypto, it\u2019s the margin you actually put up (not the full leveraged position size), since that\u2019s the real money at risk.',f:'INR: qty × entry  ·  USD: margin amount'},
   rrCol:{t:'R:R (Risk : Reward)',d:'Potential reward divided by risk. 2.00 means you stand to make twice what you risk if the target is hit before the stop.',f:'|target − entry| ÷ |entry − stop loss|'},
   fees:{t:'Charges & Fees',d:'Brokerage, STT/taxes, exchange and other fees for this trade. “Auto” estimates them from the rates in js/config.js; type your own amount to override (e.g. from your contract note).'},
   // new performance metrics
@@ -76,6 +77,8 @@ const INFO = {
   revQuick:{t:'Quick Re-entries',d:'Trades entered sooner than your cooldown after a same-day loss. Needs a cooldown rule and trade Times.'},
   revSize:{t:'Size-ups After a Loss',d:'Trades taken right after a loss with a position more than 1.5× the previous trade.'},
   afterLoss:{t:'Win Rate After a Loss',d:'Win rate of trades taken right after a same-day loss, compared with your overall win rate. A clearly lower number means you trade worse after losing.'},
+  catTabs:{t:'Trade Type',d:'Splits every chart, table and metric on this page by how the trade was taken: Intraday (cash, closed same day), Swing (cash, held overnight or longer), or F&O (any option or futures trade, regardless of how long it was held). Combined shows everything together, as before. Set per-trade in the trade form, or auto-detected on import — older trades without it show under "Uncategorized" and can be bulk-assigned from the trade panel.'},
+  tradeType:{t:'Trade Type',d:'Intraday / Swing / F&O — used to split the Analytics page by trading style. The symbol is used to suggest one automatically (anything ending CE/PE/FUT defaults to F&O), but you can always override it.'},
   dirField:{t:'Direction',d:'Long = you bought first (profit when the price rises). Short = you sold first (profit when it falls). A bought option is Long whether it is a CE or a PE — use Analytics → Calls vs Puts and Bullish vs Bearish to compare how you do in rising and falling markets.'},
   importJson:{t:'Import Trades from JSON',d:'Paste a JSON list of completed trades produced by your broker AI. Direction is set automatically from the opening order (Buy first = Long, Sell first = Short). You then add emotion, stop loss, strategy and comments, review the P&L, and save. Trades already in your journal are detected and unticked.'},
   viewTable:{t:'Bullish vs Bearish Bets',d:'Compares trades by the market view they express, whatever the instrument. Bullish = profits when the market rises (long equity/futures, bought CE, sold PE). Bearish = profits when it falls (short equity/futures, bought PE, sold CE). Shows how you perform in rising vs falling markets.'},

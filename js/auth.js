@@ -53,6 +53,8 @@ window._onLogin = function(user){
   startFirebaseListener();
   startSetupsListener();
   startRulesListener();
+  startStrategiesListener();
+  startNotesListener();
   switchProfile(currentProfile);
 };
 window._onLogout = function(){
@@ -61,6 +63,8 @@ window._onLogout = function(){
     window._fbOff('users/'+oldUID+'/trades');
     window._fbOff('users/'+oldUID+'/setups');
     window._fbOff('users/'+oldUID+'/rules');
+    window._fbOff('users/'+oldUID+'/strategies');
+    window._fbOff('users/'+oldUID+'/notes');
   }
   fbListenerActive = false;
   setupsListenerActive = false;
@@ -68,10 +72,16 @@ window._onLogout = function(){
   allTrades = [];
   allSetups = [];
   allRules = {};
+  allStrategies = [];
+  allNotes = [];
+  stratTagFilter.clear();
+  notebookExpanded.clear();
   selectedDates.clear();
   lastClickedDate = null;
   if(TP.open)closeTradePanel();
   rulesListenerActive = false;
+  strategiesListenerActive = false;
+  notesListenerActive = false;
   document.getElementById('authScreen').style.display='flex';
   document.getElementById('appScreen').style.display='none';
 };

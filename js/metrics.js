@@ -58,7 +58,7 @@ function computePerf(trades){
 
 function renderPerf(){
   const grid=document.getElementById('perfGrid'); if(!grid) return;
-  const trades=getTrades(), s=CS(), loc=currentProfile==='INR'?'en-IN':'en-US';
+  const trades=getAnalyticsTrades(), s=CS(), loc=currentProfile==='INR'?'en-IN':'en-US';
   const money=v=>s+Math.abs(v).toLocaleString(loc,{maximumFractionDigits:2});
   const sgn=v=>(v<0?'−':v>0?'+':'')+money(v);
   const pct=x=>(x*100).toFixed(1)+'%';

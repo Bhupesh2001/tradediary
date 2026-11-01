@@ -33,7 +33,7 @@ function cmpNote(A,B,la,lb){
 }
 
 function renderInsights(){
-  const trades=getTrades(),s=CS();
+  const trades=getAnalyticsTrades(),s=CS();
   [todChart,symChart,holdChart].forEach(c=>{if(c)c.destroy();});todChart=symChart=holdChart=null;
   const tick={color:'#7a7f95',font:{size:10}},grid={color:'rgba(255,255,255,.04)'};
   const col=v=>v>=0?'rgba(110,231,183,.75)':'rgba(248,113,113,.75)';

@@ -8,6 +8,13 @@ function lsSet(k,v){try{localStorage.setItem(k,v)}catch(e){}}
 function getFeeSeg(){return lsGet('td_fee_seg','intraday')}
 function getFeeRate(){const v=parseFloat(lsGet('td_fee_rate_usd',''));return isNaN(v)?FEE_RATES.USD.defaultRate:v}
 function feeDp(){return currentProfile==='USD'?4:2}
+// Shared formatter: {Brokerage:120,STT:116.11,...} -> "Brokerage ₹120 · STT ₹116.11 · ..." (only positive parts, in a stable order)
+function feeBreakdownText(bd,profile){
+  if(!bd)return '';
+  const s=profile==='USD'?'$':'₹',dp=profile==='USD'?4:2;
+  const order=['Brokerage','STT','Exchange','GST','Stamp','SEBI','Other'];
+  return order.filter(k=>bd[k]>0).map(k=>k+' '+s+(+bd[k]).toFixed(dp)).join(' · ');
+}
 
 // Pure calculator. Returns {total, parts:{name:amount}} or null when inputs are incomplete.
 function calcCharges({profile,dir,entry,exit,qty,seg,rate}){

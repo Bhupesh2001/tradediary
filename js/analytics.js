@@ -1,6 +1,23 @@
 // ── ANALYTICS ──────────────────────────────────────────────────────────────
+function renderCatTabs(){
+  const all = getTrades();
+  const counts = {combined:all.length, intraday:0, swing:0, fno:0, uncategorized:0};
+  all.forEach(t=>{const c=tradeCategory(t); if(counts[c]!==undefined)counts[c]++;});
+  document.querySelectorAll('#analyticsCatTabs .cat-tab').forEach(b=>{
+    const c=b.dataset.cat;
+    b.classList.toggle('active', c===analyticsCategory);
+    b.querySelector('.cat-tab-n').textContent = counts[c];
+  });
+  const note = document.getElementById('catUncatNote');
+  if(analyticsCategory!=='combined' && counts.uncategorized>0){
+    note.style.display='';
+    note.innerHTML = counts.uncategorized+' trade'+(counts.uncategorized>1?'s have':' has')+' no trade type set, so '+(counts.uncategorized>1?"they aren't":"it isn't")+' included in Intraday / Swing / F&O. <span class="cat-fix-link" id="catFixLink">Categorize them →</span>';
+    document.getElementById('catFixLink').onclick=()=>openTradePanel('Uncategorized trades', {category:'uncategorized'});
+  } else note.style.display='none';
+}
 function renderAnalytics(){
-  const trades=getTrades(),s=CS();
+  renderCatTabs();
+  const trades=getAnalyticsTrades(),s=CS();
   const sm={};trades.forEach(t=>{sm[t.strat||'Other']=(sm[t.strat||'Other']||0)+t.pnl;});
   if(stratChart)stratChart.destroy();
   const sl=Object.keys(sm),sd=Object.values(sm);
@@ -40,7 +57,7 @@ function renderPsychology(){
   const trades=getTrades(),emMap={},emPnl={};
   trades.forEach(t=>{const e=t.emotion||'neutral';emMap[e]=(emMap[e]||0)+1;emPnl[e]=(emPnl[e]||0)+t.pnl;});
   const emL=Object.keys(emMap);
-  const emC={calm:'rgba(110,231,183,.8)',fear:'rgba(251,191,36,.8)',greed:'rgba(248,113,113,.8)',revenge:'rgba(239,68,68,.8)',confident:'rgba(56,189,248,.8)',disciplined:'rgba(167,139,250,.8)'};
+  const emC={calm:'rgba(110,231,183,.8)',fear:'rgba(251,191,36,.8)',greed:'rgba(248,113,113,.8)',revenge:'rgba(239,68,68,.8)',confident:'rgba(56,189,248,.8)',disciplined:'rgba(167,139,250,.8)',impatient:'rgba(251,146,60,.8)'};
   if(emChart)emChart.destroy();
   emChart=new Chart(document.getElementById('emotionChart').getContext('2d'),{type:'doughnut',plugins:[clickPlugin(i=>openTradePanel('Emotion: '+emL[i],{emotion:emL[i]}),{mode:'nearest',intersect:true})],data:{labels:emL,datasets:[{data:emL.map(e=>emMap[e]),backgroundColor:emL.map(e=>emC[e]||'rgba(122,127,149,.6)'),borderColor:'#13161e',borderWidth:2}]},options:{responsive:true,maintainAspectRatio:false,cutout:'55%',plugins:{legend:{position:'right',labels:{color:'#7a7f95',font:{size:10}}}}}});
   const ep=document.getElementById('emotionPnlTable');ep.innerHTML='';

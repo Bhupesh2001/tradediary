@@ -1,9 +1,20 @@
 // ── MODAL ──────────────────────────────────────────────────────────────────
+// Trade-form category state: auto-suggested from the symbol until the user picks one themselves.
+let formCategory = 'intraday', catManuallySet = false;
+function setFormCategory(cat, auto){
+  formCategory = cat;
+  if(!auto) catManuallySet = true;
+  document.querySelectorAll('#f_categoryTabs .cat-tab').forEach(b=>b.classList.toggle('active', b.dataset.cat===cat));
+}
+document.getElementById('f_sym').addEventListener('input', ()=>{
+  if(!catManuallySet) setFormCategory(guessCategory(document.getElementById('f_sym').value), true);
+});
 function openModal(){
   editingId=null;tradeImages=[];
   document.getElementById('modalTitleText').textContent='Log Trade';
   document.getElementById('saveTradeBtn').textContent='Log Trade';
   ['f_sym','f_strat','f_notes','f_qty','f_sl','f_sl2','f_entry','f_exit','f_qty_calc'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  catManuallySet=false; setFormCategory('intraday', true);
   document.getElementById('f_date').value=todayStr();
   // set current time as default
   const now=new Date();
@@ -30,6 +41,7 @@ function openEditModal(id){
   document.getElementById('f_time').value=(t.time&&t.time!=='23:59')?t.time:'';
   document.getElementById('f_exitTime').value=t.exitTime||'';
   document.getElementById('f_dir').value=t.dir;
+  catManuallySet=true; setFormCategory(tradeCategory(t)==='uncategorized'?'intraday':tradeCategory(t));
   document.getElementById('f_strat').value=t.strat||'';
   document.getElementById('f_entry').value=t.entry;
   document.getElementById('f_exit').value=t.exit;
@@ -111,7 +123,7 @@ function saveTrade(){
   const feeRate=currentProfile==='USD'?(parseFloat(document.getElementById('f_feeRate').value)||0):null;
   const old=editingId?allTrades.find(x=>x.id===editingId):null;
   const keep={};['instrument','optType','product','externalId','source'].forEach(k=>{if(old&&old[k]!==undefined)keep[k]=old[k];});
-  const obj={...keep,id:editingId||uid(),profile:currentProfile,sym,date,time,dir,strat,entry,exit,qty,sl,leverage,amount,notes,emotion,pnl,grossPnl:gross,fees,feeSeg,feeRate,feesManual,exitTime,images:tradeImages};
+  const obj={...keep,id:editingId||uid(),profile:currentProfile,sym,date,time,dir,strat,entry,exit,qty,sl,leverage,amount,notes,emotion,pnl,grossPnl:gross,fees,feeSeg,feeRate,feesManual,exitTime,category:formCategory,images:tradeImages};
   if(editingId){const i=allTrades.findIndex(x=>x.id===editingId);if(i>=0)allTrades[i]=obj;}
   else allTrades.push(obj);
   saveTradeFB(obj);

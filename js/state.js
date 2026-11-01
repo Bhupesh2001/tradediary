@@ -45,6 +45,46 @@ function compressImage(file, maxW = 1200, quality = 0.7){
 }
 
 // Local-date helpers (toISOString() is UTC and gives "yesterday" early morning in IST)
+// ── Trade category (Swing / Intraday / F&O), used to slice the Analytics page ──
+let analyticsCategory = (function(){try{return localStorage.getItem('td_ana_cat')||'combined'}catch(e){return 'combined'}})();
+const CAT_LABELS = {combined:'Combined', intraday:'Intraday', swing:'Swing', fno:'F&O', uncategorized:'Uncategorized'};
+// Explicit t.category wins; otherwise fall back to the older instrument/product fields
+// (set only on JSON-imported trades) so historical imports still land in the right bucket.
+function tradeCategory(t){
+  if(t.category) return t.category;
+  if(t.instrument==='OPTION'||t.instrument==='FUTURE') return 'fno';
+  if(t.product==='DELIVERY') return 'swing';
+  if(t.product==='INTRADAY') return 'intraday';
+  return 'uncategorized';
+}
+function getAnalyticsTrades(){
+  const base = getTrades();
+  return analyticsCategory==='combined' ? base : base.filter(t=>tradeCategory(t)===analyticsCategory);
+}
+// Smart default for the trade-form category toggle: look at the symbol itself.
+function guessCategory(sym){
+  const s = String(sym||'').toUpperCase();
+  if(/(?:\d|\s)(CE|PE)$/.test(s) || /FUT$/.test(s)) return 'fno';
+  return 'intraday';
+}
+function setAnalyticsCategory(cat){
+  analyticsCategory = cat;
+  try{localStorage.setItem('td_ana_cat', cat)}catch(e){}
+  renderAnalytics();
+}
+// Capital committed to a trade. INR: notional value at entry (qty × entry price), for
+// either direction. USD/crypto: the actual margin put up (the existing `amount` field),
+// not the leveraged notional, since that's the real capital at risk.
+function tradeAmountUsed(t){
+  if(t.profile==='USD') return (t.amount>0) ? t.amount : +(t.entry*t.qty/(t.leverage||1)).toFixed(4);
+  return +(t.entry*t.qty).toFixed(2);
+}
+// Net P&L as a % of capital committed to that one trade. Null when it can't be computed.
+function tradePnlPct(t){
+  const amt = tradeAmountUsed(t);
+  return amt>0 ? (t.pnl/amt*100) : null;
+}
+function fmtPct(p){ return p===null ? '' : (p>=0?'+':'')+p.toFixed(1)+'%'; }
 function dateStr(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}
 function todayStr(){return dateStr(new Date())}
 // Trade time helpers. A blank time is stored as the sentinel '23:59' (sorts last) and is treated as "unknown".

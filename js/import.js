@@ -1,6 +1,6 @@
 // ── JSON TRADE IMPORT (broker AI → TradeDiary) ─────────────────────────────
 const IMPORT_EXAMPLE=[
-  {symbol:'NIFTY 24500 PE',instrument:'OPTION',optionType:'PE',product:'INTRADAY',side:'BUY',quantity:75,entryPrice:112.5,exitPrice:138,date:'2026-10-01',entryTime:'09:32',exitTime:'09:58',charges:54.3,grossPnl:1912.5,tradeId:'250930000123'},
+  {symbol:'NIFTY 24500 PE',instrument:'OPTION',optionType:'PE',product:'INTRADAY',side:'BUY',quantity:75,entryPrice:112.5,exitPrice:138,date:'2026-10-01',entryTime:'09:32',exitTime:'09:58',chargesBreakdown:{brokerage:120,stt:116.11,exchangeTxn:50.35,gst:30.69,stampDuty:2.33,sebi:0.15},grossPnl:1912.5,tradeId:'250930000123'},
   {symbol:'TATAMOTORS',instrument:'EQUITY',product:'INTRADAY',side:'SELL',quantity:100,entryPrice:705.4,exitPrice:700.9,date:'2026-10-01',entryTime:'10:15',exitTime:'11:02'},
   {symbol:'BANKNIFTY 52000 CE',instrument:'OPTION',optionType:'CE',side:'BUY',quantity:30,entryPrice:210,exitPrice:185.5,date:'2026-10-01',entryTime:'13:41',exitTime:'14:20'}
 ];
@@ -21,11 +21,13 @@ const IMPORT_PROMPT=
 '- entryTime: "HH:MM" 24-hour IST (time of first opening fill)\n'+
 '- exitTime: "HH:MM" 24-hour IST (time of last closing fill)\n'+
 '- charges: total brokerage + taxes + fees for the round trip, a number (omit if unavailable)\n'+
+'- chargesBreakdown: if your broker can itemise it, an object with as many of these as available (all numbers, omit any you don\'t have): '+
+'{ brokerage, stt, exchangeTxn, gst, stampDuty, sebi }. If given without "charges", the parts are added up to get the total.\n'+
 '- grossPnl: realised P&L before charges, a number (omit if unavailable)\n'+
 '- tradeId: broker trade/order id as a string (omit if unavailable)\n\n'+
 'Do NOT include stop loss, notes, emotions or strategy. Example of the exact format:\n'+JSON.stringify(IMPORT_EXAMPLE,null,2);
 
-const IMP_EMOTIONS=['calm','fear','greed','revenge','confident','disciplined'];
+const IMP_EMOTIONS=['calm','fear','greed','revenge','confident','disciplined','impatient'];
 let impRows=[];
 
 // ---------- tolerant field mapping ----------
@@ -130,7 +132,30 @@ function impBuildRow(raw,idx){
     externalId:c.tradeId!==undefined?String(c.tradeId).trim():'',
     leverage:Math.max(1,impNum(c.leverage)||1),
     seg:instrument==='OPTION'?'options':instrument==='FUTURE'?'futures':(product==='DELIVERY'?'delivery':'intraday'),
+    category:(instrument==='OPTION'||instrument==='FUTURE')?'fno':(product==='DELIVERY'?'swing':'intraday'),
     emotion:'',strat:'',sl:'',notes:'',dup:''};
+  // Optional itemised charges (any sub-fields present; case/spacing-insensitive key match on the raw object)
+  let rawBd=null;
+  if(raw&&typeof raw==='object'){
+    const bdKey=Object.keys(raw).find(k=>/^(charges?|fee)breakdown$/.test(k.toLowerCase().replace(/[^a-z]/g,'')));
+    if(bdKey&&raw[bdKey]&&typeof raw[bdKey]==='object')rawBd=raw[bdKey];
+  }
+  if(rawBd&&typeof rawBd==='object'){
+    const bdLookup={brokerage:'Brokerage',stt:'STT',exchangetxn:'Exchange',exchange:'Exchange',gst:'GST',stampduty:'Stamp',stamp:'Stamp',sebi:'SEBI',other:'Other'};
+    const bd={};
+    Object.keys(rawBd).forEach(k=>{
+      const c2=bdLookup[String(k).toLowerCase().replace(/[^a-z]/g,'')];
+      const v=impNum(rawBd[k]);
+      if(c2&&!isNaN(v)&&bd[c2]===undefined)bd[c2]=Math.max(0,v);
+    });
+    if(Object.keys(bd).length){
+      row.feeBreakdown=bd;
+      const sum=+Object.values(bd).reduce((a,v)=>a+v,0).toFixed(2);
+      if(row.charges===null)row.charges=sum;        // no total given -> derive it from the parts
+      else if(Math.abs(row.charges-sum)>Math.max(1,row.charges*0.02))
+        row.warn.push('Charges breakdown adds up to '+(row.profile==='USD'?'$':'₹')+sum+', not the stated '+(row.profile==='USD'?'$':'₹')+row.charges+' — using the stated total');
+    }
+  }
   row.chargesManual=row.charges!==null;
   if(row.ok)impRecompute(row);
   return row;
@@ -223,7 +248,8 @@ function impWarnings(r){
 }
 function impMeta(r){
   const tm=(r.time||'no time')+(r.exitTime?' → '+r.exitTime:'');
-  return escHtml(r.date)+' · '+tm+' · qty '+r.qty+' · '+r.entry+' → '+r.exit+' · gross '+impSigned(r.gross,r.profile)+' · charges '+impMoney(r.fees,r.profile)+(r.chargesManual?'':' (est.)');
+  const bdText=r.feeBreakdown?feeBreakdownText(r.feeBreakdown,r.profile):'';
+  return escHtml(r.date)+' · '+tm+' · qty '+r.qty+' · '+r.entry+' → '+r.exit+' · gross '+impSigned(r.gross,r.profile)+' · charges '+impMoney(r.fees,r.profile)+(r.chargesManual?'':' (est.)')+(bdText?'<br><span style="opacity:.8">'+escHtml(bdText)+'</span>':'');
 }
 function impBadge(r){
   return escHtml((r.instrument==='OPTION'?'OPTION '+r.optType:r.instrument+(r.product?' '+r.product:''))+(r.profile!==currentProfile?' · '+r.profile:''));
@@ -237,6 +263,9 @@ function impCardHtml(r){
    '<div class="imp-meta" data-r="meta"></div><div data-r="warns"></div>'+
    '<div class="imp-ems">'+ems+'</div>'+
    '<div class="imp-fields">'+
+     '<label class="imp-lbl">Trade type<select class="form-select" data-f="category">'+
+       ['intraday','swing','fno'].map(v=>'<option value="'+v+'"'+(v===r.category?' selected':'')+'>'+CAT_LABELS[v]+'</option>').join('')+
+     '</select></label>'+
      '<input class="form-input" data-f="strat" list="impStratList" placeholder="Strategy" value="'+escHtml(r.strat)+'">'+
      '<input class="form-input" type="number" step="any" data-f="sl" placeholder="Stop loss (price)" value="'+escHtml(r.sl)+'">'+
      '<input class="form-input" data-f="notes" placeholder="Comments / notes" value="'+escHtml(r.notes)+'" style="grid-column:1/-1">'+
@@ -283,11 +312,12 @@ function impSave(){
     const t={id:uid(),profile:r.profile,sym:r.sym,date:r.date,time:r.time||'23:59',dir:r.dir,strat:r.strat.trim(),entry:r.entry,exit:r.exit,qty:r.qty,
       sl:parseFloat(r.sl)||0,leverage:usd?r.leverage:null,amount:usd?+(r.entry*r.qty/r.leverage).toFixed(4):null,
       notes:r.notes.trim(),emotion:r.emotion||'calm',pnl:r.net,grossPnl:r.gross,fees:r.fees,
-      feeSeg:usd?null:r.seg,feeRate:usd?getFeeRate():null,feesManual:r.chargesManual,
+      feeSeg:usd?null:r.seg,feeRate:usd?getFeeRate():null,feesManual:r.chargesManual,category:r.category,
       exitTime:r.exitTime||'',instrument:r.instrument,source:'import',images:[]};
     if(r.optType)t.optType=r.optType;
     if(r.product)t.product=r.product;
     if(r.externalId)t.externalId=r.externalId;
+    if(r.feeBreakdown)t.feeBreakdown=r.feeBreakdown;
     return t;
   });
   made.forEach(t=>{allTrades.push(t);saveTradeFB(t);});
@@ -317,7 +347,7 @@ function impSave(){
     const x=rowOf(e),f=e.target.dataset&&e.target.dataset.f;if(!x||!f)return;
     const r=x.r,v=e.target.type==='checkbox'?e.target.checked:e.target.value;
     if(f==='include'){r.include=v;x.card.classList.toggle('off',!v);impUpdateFooter();return;}
-    if(f==='strat'||f==='sl'||f==='notes'){r[f]=v;return;}
+    if(f==='strat'||f==='sl'||f==='notes'||f==='category'){r[f]=v;return;}
     if(f==='dir'){r.dir=v;}
     if(f==='charges'){
       const n=parseFloat(v);
