@@ -88,7 +88,7 @@ function applyFeesToOldTrades(){
   const list=getTrades().filter(t=>t.fees===undefined);
   if(!list.length){alert('All trades in this profile already have charges recorded.');return;}
   let seg='intraday', rate=getFeeRate();
-  if(currentProfile==='INR'){
+  if(currentProfile!=='USD'){
     seg=(prompt('Charges for '+list.length+' older trades. Segment: intraday / delivery / futures / options','intraday')||'').trim().toLowerCase();
     if(!seg||seg==='none'||!FEE_RATES.INR[seg]){alert('Cancelled — enter one of: intraday, delivery, futures, options.');return;}
   } else if(!confirm('Apply '+rate+'% per side to '+list.length+' older trades?')) return;
@@ -97,7 +97,7 @@ function applyFeesToOldTrades(){
     const gross=t.pnl;
     const r=calcCharges({profile:currentProfile,dir:t.dir,entry:t.entry,exit:t.exit,qty:t.qty,seg,rate});
     const fees=r?+r.total.toFixed(dp):0;
-    t.grossPnl=gross; t.fees=fees; t.feeSeg=currentProfile==='INR'?seg:null; t.feeRate=currentProfile==='USD'?rate:null; t.feesManual=false;
+    t.grossPnl=gross; t.fees=fees; t.feeSeg=currentProfile!=='USD'?seg:null; t.feeRate=currentProfile==='USD'?rate:null; t.feesManual=false;
     t.pnl=+(gross-fees).toFixed(dp);
     saveTradeFB(t);
   });

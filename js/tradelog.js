@@ -52,7 +52,7 @@ function renderTradeRows(tbodyId,trades){
       <td><span class="${t.dir==='LONG'?'dir-long':'dir-short'}">${t.dir}</span><br><span class="cat-badge cat-${tradeCategory(t)}">${CAT_LABELS[tradeCategory(t)]}</span></td>
       <td>${s}${t.entry}</td><td>${s}${t.exit}</td>
       <td style="color:var(--muted)">${qty}</td>
-      <td style="color:var(--muted);font-family:var(--mono)" title="Capital committed to this trade">${s}${tradeAmountUsed(t).toLocaleString(t.profile==='INR'?'en-IN':'en-US',{maximumFractionDigits:t.profile==='USD'?4:2})}</td>
+      <td style="color:var(--muted);font-family:var(--mono)" title="Capital committed to this trade">${s}${tradeAmountUsed(t).toLocaleString(t.profile==='USD'?'en-US':'en-IN',{maximumFractionDigits:t.profile==='USD'?4:2})}</td>
       <td class="${t.pnl>=0?'pnl-pos':'pnl-neg'}"${t.fees?` title="Gross ${fmtPnl(t.grossPnl??t.pnl)} − charges ${s}${t.fees}${t.feeBreakdown?' ('+feeBreakdownText(t.feeBreakdown,t.profile)+')':''}"`:''}>${fmtPnl(t.pnl)}<span style="font-size:10.5px;font-weight:700;opacity:.85"> (${fmtPct(tradePnlPct(t))})</span>${t.fees?`<br><span style="font-size:10px;color:var(--muted);font-weight:400">fees ${s}${t.fees}</span>`:''}</td>
       <td><span class="em-tag ${t.emotion||'neutral'}" style="padding:2px 7px;font-size:10px">${t.emotion||'—'}</span></td>
       <td style="color:var(--muted);font-family:var(--font);font-size:11px">${escHtml(t.strat||'—')}</td>

@@ -91,6 +91,7 @@
       <div class="profile-label">Trading Profile</div>
       <div class="profile-btn active-profile" id="btnINR" data-sym="₹" onclick="switchProfile('INR')"><span class="profile-dot dot-inr"></span>Stocks ₹ INR</div>
       <div class="profile-btn" id="btnUSD" data-sym="$" onclick="switchProfile('USD')"><span class="profile-dot dot-usd"></span>Crypto $ USD</div>
+      <div class="profile-btn" id="btnPAPER" data-sym="₹" onclick="switchProfile('PAPER')"><span class="profile-dot dot-paper"></span>📝 Paper Trading</div>
     </div>
     <div class="account-section">
       <div class="profile-label">Account</div>
@@ -169,6 +170,7 @@
       </div>
     </div>
 
+    <div id="paperBanner" class="paper-banner" style="display:none">📝 Paper Trading Mode — nothing logged here affects your real ₹ / $ trades</div>
     <div id="ruleBanner" class="rule-banner" style="display:none" role="alert"></div>
 
     <!-- DASHBOARD -->

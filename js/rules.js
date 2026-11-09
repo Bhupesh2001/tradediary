@@ -5,7 +5,7 @@ let rulesListenerActive = false;
 const RULE_DEFAULTS = {maxDailyLoss:0,maxDailyTrades:0,maxConsecLosses:0,maxLossPerTrade:0,cooldownMin:0,monthlyTarget:0,flagSizeUp:true};
 const RULE_FIELDS = ['maxDailyLoss','maxDailyTrades','maxConsecLosses','maxLossPerTrade','cooldownMin','monthlyTarget'];
 
-function fmtMoney(v){return CS()+Math.abs(v).toLocaleString(currentProfile==='INR'?'en-IN':'en-US',{maximumFractionDigits:2})}
+function fmtMoney(v){return CS()+Math.abs(v).toLocaleString(currentProfile==='USD'?'en-US':'en-IN',{maximumFractionDigits:2})}
 function fmtSigned(v){return (v<0?'−':v>0?'+':'')+fmtMoney(v)}
 function getRules(){return Object.assign({},RULE_DEFAULTS,allRules[currentProfile]||{})}
 function rulesConfigured(R){return R.maxDailyLoss>0||R.maxDailyTrades>0||R.maxConsecLosses>0||R.maxLossPerTrade>0||R.cooldownMin>0||R.monthlyTarget>0}
@@ -133,7 +133,7 @@ function flagMark(map,id){return map[id]?'<span class="rule-flag" title="'+escHt
 
 function renderRules(){
   const R=getRules(),trades=getTrades(),S=ruleStatus(trades,R),E=S.E;
-  document.getElementById('rulesProfileBadge').textContent=currentProfile==='INR'?'₹ INR':'$ USD';
+  document.getElementById('rulesProfileBadge').textContent={INR:'₹ INR',USD:'$ USD',PAPER:'📝 Paper'}[currentProfile];
   document.querySelectorAll('.rcur').forEach(el=>el.textContent='('+CS()+')');
   const form=document.getElementById('rulesForm');
   if(!form.contains(document.activeElement)){

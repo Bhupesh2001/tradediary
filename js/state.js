@@ -16,8 +16,9 @@ let setupsListenerActive = false;
 // ── HELPERS ────────────────────────────────────────────────────────────────
 function uid(){return Math.random().toString(36).slice(2,10)}
 function getTrades(){return allTrades.filter(t=>t.profile===currentProfile)}
-function CS(){return currentProfile==='INR'?'₹':'$'}
-function fmtPnl(v){const s=CS();return(v>=0?'+':'')+s+Math.abs(v).toLocaleString(currentProfile==='INR'?'en-IN':'en-US',{minimumFractionDigits:2,maximumFractionDigits:2})}
+// Paper trading formats like INR (₹, en-IN) by default — only USD gets $ / en-US.
+function CS(){return currentProfile==='USD'?'$':'₹'}
+function fmtPnl(v){const s=CS();return(v>=0?'+':'')+s+Math.abs(v).toLocaleString(currentProfile==='USD'?'en-US':'en-IN',{minimumFractionDigits:2,maximumFractionDigits:2})}
 function escHtml(s){return String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;')}
 function setSyncStatus(state,text){document.getElementById('syncDot').className='sync-dot '+state;document.getElementById('syncLabel').textContent=text}
 

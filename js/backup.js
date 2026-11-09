@@ -2,7 +2,7 @@
 function exportCSV(){
   const trades=getTrades();if(!trades.length){alert('No trades.');return;}
   const headers=['ID','Profile','Symbol','Date','Time','Exit Time','Direction','Entry','Exit','Qty','Amount','Leverage','StopLoss','Strategy','Emotion','Position Value','P&L %','Gross P&L','Charges','Net P&L','Currency','Notes'];
-  const rows=trades.map(t=>[t.id,t.profile,t.sym,t.date,t.time||'',t.exitTime||'',t.dir,t.entry,t.exit,t.qty?.toFixed?t.qty.toFixed(6):t.qty,t.amount||'',t.leverage||'',t.sl||'',t.strat||'',t.emotion||'',tradeAmountUsed(t),(tradePnlPct(t)===null?'':tradePnlPct(t).toFixed(2)),(t.grossPnl??t.pnl),(t.fees||0),t.pnl,currentProfile==='INR'?'INR':'USD','"'+(t.notes||'').replace(/"/g,'""')+'"']);
+  const rows=trades.map(t=>[t.id,t.profile,t.sym,t.date,t.time||'',t.exitTime||'',t.dir,t.entry,t.exit,t.qty?.toFixed?t.qty.toFixed(6):t.qty,t.amount||'',t.leverage||'',t.sl||'',t.strat||'',t.emotion||'',tradeAmountUsed(t),(tradePnlPct(t)===null?'':tradePnlPct(t).toFixed(2)),(t.grossPnl??t.pnl),(t.fees||0),t.pnl,currentProfile,'"'+(t.notes||'').replace(/"/g,'""')+'"']);
   const csv=[headers,...rows].map(r=>r.join(',')).join('\n');
   const blob=new Blob([csv],{type:'text/csv'});
   const url=URL.createObjectURL(blob);
@@ -13,9 +13,10 @@ function exportCSV(){
 function openBackup(){
   const inr=allTrades.filter(t=>t.profile==='INR').length;
   const usd=allTrades.filter(t=>t.profile==='USD').length;
+  const paper=allTrades.filter(t=>t.profile==='PAPER').length;
   const imgs=allTrades.reduce((a,t)=>a+(t.images?.length||0),0);
   const kb=Math.round(JSON.stringify(allTrades).length/1024);
-  document.getElementById('backupStats').innerHTML=`<span class="backup-stat">Stocks: <b>${inr}</b></span><span class="backup-stat">Crypto: <b>${usd}</b></span><span class="backup-stat">Screenshots: <b>${imgs}</b></span><span class="backup-stat">~<b>${kb}KB</b></span>`;
+  document.getElementById('backupStats').innerHTML=`<span class="backup-stat">Stocks: <b>${inr}</b></span><span class="backup-stat">Crypto: <b>${usd}</b></span>${paper?`<span class="backup-stat">Paper: <b>${paper}</b></span>`:''}<span class="backup-stat">Screenshots: <b>${imgs}</b></span><span class="backup-stat">~<b>${kb}KB</b></span>`;
   document.getElementById('importResult').style.display='none';
   document.getElementById('importFileInput').value='';
   selectMerge('merge');

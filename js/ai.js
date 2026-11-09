@@ -6,7 +6,7 @@ async function runAI(){
   out.innerHTML='<span class="ai-thinking">Analysing...</span><span class="ai-cursor"></span>';
   const trades=getTrades(),t=getTotals(trades),s=CS();
   const summary=JSON.stringify(trades.map(x=>({sym:x.sym,date:x.date,dir:x.dir,strat:x.strat,pnl:x.pnl,fees:x.fees||0,emotion:x.emotion,leverage:x.leverage})));
-  const sys=`You are a professional trading coach. Profile: ${currentProfile==='INR'?'Indian Stock Trader (INR)':'Crypto Trader (USD)'}. Trades (pnl is NET of fees):\n${summary}\nStats: ${t.total} trades, ${t.winRate}% win rate, Net P&L: ${s}${t.pnl}, PF: ${t.pf}, R: ${t.avgR}.\nGive 3-5 sentences of specific, actionable insight referencing actual trade data.`;
+  const sys=`You are a professional trading coach. Profile: ${({INR:'Indian Stock Trader (INR)',USD:'Crypto Trader (USD)',PAPER:'Paper/practice trader (not real money) — focus feedback on process and discipline, not capital at risk'})[currentProfile]}. Trades (pnl is NET of fees):\n${summary}\nStats: ${t.total} trades, ${t.winRate}% win rate, Net P&L: ${s}${t.pnl}, PF: ${t.pf}, R: ${t.avgR}.\nGive 3-5 sentences of specific, actionable insight referencing actual trade data.`;
   try{
     const res=await fetch(AI_PROXY,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({system:sys,prompt})});
     if(!res.ok) throw new Error('HTTP '+res.status);

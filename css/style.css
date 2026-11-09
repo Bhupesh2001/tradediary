@@ -50,7 +50,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:14
 .profile-btn{display:flex;align-items:center;gap:8px;padding:7px 10px;border-radius:8px;cursor:pointer;border:1px solid var(--border2);background:var(--surface2);transition:all .15s;font-size:12px;font-weight:600}
 .profile-btn:hover,.profile-btn.active-profile{border-color:var(--accent);color:var(--accent);background:rgba(110,231,183,.08)}
 .profile-dot{width:7px;height:7px;border-radius:50%}
-.dot-inr{background:var(--accent)}.dot-usd{background:var(--accent2)}
+.dot-inr{background:var(--accent)}.dot-usd{background:var(--accent2)}.dot-paper{background:#fb923c}
 .user-row{display:flex;align-items:center;gap:8px;padding:7px 8px;background:var(--surface2);border-radius:9px;border:1px solid var(--border2)}
 .av-circle{width:30px;height:30px;min-width:30px;border-radius:50%;background:linear-gradient(135deg,#6ee7b7,#38bdf8);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#0d0f14;flex-shrink:0}
 .user-info{flex:1;min-width:0}
@@ -97,6 +97,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:14
 .profile-badge{font-size:11px;font-weight:700;padding:3px 9px;border-radius:20px}
 .badge-inr{background:rgba(110,231,183,.12);color:var(--accent)}
 .badge-usd{background:rgba(56,189,248,.12);color:var(--accent2)}
+.badge-paper{background:rgba(251,146,60,.14);color:#fb923c}
 .sync-dot{width:6px;height:6px;border-radius:50%;background:var(--muted);transition:background .3s;flex-shrink:0}
 .sync-dot.synced{background:var(--accent)}.sync-dot.syncing{background:var(--warn);animation:pulse .8s infinite}.sync-dot.error{background:var(--danger)}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
@@ -386,6 +387,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:14
 .cap-input{width:130px;padding:5px 8px;font-size:12px}
 
 /* rules & goals */
+.paper-banner{margin:12px 16px 0;padding:9px 14px;border-radius:10px;font-size:12px;font-weight:700;text-align:center;background:rgba(251,146,60,.12);color:#fb923c;border:1px solid rgba(251,146,60,.3)}
 .rule-banner{margin:12px 16px 0;padding:11px 14px;border-radius:10px;font-size:13px;font-weight:600;line-height:1.5;cursor:pointer;border:1px solid}
 .rule-banner.danger{background:rgba(248,113,113,.12);color:var(--danger);border-color:rgba(248,113,113,.4)}
 .rule-banner.warn{background:rgba(251,191,36,.10);color:var(--warn);border-color:rgba(251,191,36,.4)}

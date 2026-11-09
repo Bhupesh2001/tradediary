@@ -119,7 +119,7 @@ function saveTrade(){
   }
   const fees=Math.max(0,parseFloat(document.getElementById('f_fees').value)||0);
   pnl=+(gross-fees).toFixed(currentProfile==='USD'?4:2);   // pnl = NET
-  const feeSeg=currentProfile==='INR'?document.getElementById('f_feeSeg').value:null;
+  const feeSeg=currentProfile!=='USD'?document.getElementById('f_feeSeg').value:null;
   const feeRate=currentProfile==='USD'?(parseFloat(document.getElementById('f_feeRate').value)||0):null;
   const old=editingId?allTrades.find(x=>x.id===editingId):null;
   const keep={};['instrument','optType','product','externalId','source'].forEach(k=>{if(old&&old[k]!==undefined)keep[k]=old[k];});
@@ -163,8 +163,12 @@ function switchProfile(p){
   currentProfile=p;localStorage.setItem('td_profile',p);
   document.getElementById('btnINR').classList.toggle('active-profile',p==='INR');
   document.getElementById('btnUSD').classList.toggle('active-profile',p==='USD');
-  document.getElementById('profileBadge').textContent=p==='INR'?'₹ INR':'$ USD';
-  document.getElementById('profileBadge').className='profile-badge '+(p==='INR'?'badge-inr':'badge-usd');
+  document.getElementById('btnPAPER').classList.toggle('active-profile',p==='PAPER');
+  const label={INR:'₹ INR',USD:'$ USD',PAPER:'📝 Paper'}[p];
+  const cls={INR:'badge-inr',USD:'badge-usd',PAPER:'badge-paper'}[p];
+  document.getElementById('profileBadge').textContent=label;
+  document.getElementById('profileBadge').className='profile-badge '+cls;
+  document.getElementById('paperBanner').style.display=(p==='PAPER')?'':'none';
   closeNotesPanel();renderPage(currentPage);
 }
 

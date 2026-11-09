@@ -201,7 +201,7 @@ function impParseText(txt){
 }
 
 // ---------- UI ----------
-function impMoney(v,p){return (p==='USD'?'$':'₹')+Math.abs(v).toLocaleString(p==='INR'?'en-IN':'en-US',{maximumFractionDigits:2})}
+function impMoney(v,p){return (p==='USD'?'$':'₹')+Math.abs(v).toLocaleString(p==='USD'?'en-US':'en-IN',{maximumFractionDigits:2})}
 function impSigned(v,p){return (v<0?'−':v>0?'+':'')+impMoney(v,p)}
 function impToast(msg){
   let t=document.getElementById('toast');
@@ -323,7 +323,7 @@ function impSave(){
   made.forEach(t=>{allTrades.push(t);saveTradeFB(t);});
   const other=made.filter(t=>t.profile!==currentProfile).length;
   closeImport();renderPage(currentPage);
-  impToast(made.length+' trade'+(made.length>1?'s':'')+' imported'+(other?' ('+other+' in the '+(currentProfile==='INR'?'USD':'INR')+' profile)':''));
+  impToast(made.length+' trade'+(made.length>1?'s':'')+' imported'+(other?' ('+other+' saved to a different profile, based on the data)':''));
 }
 
 // event delegation for the review list

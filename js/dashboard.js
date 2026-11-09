@@ -30,7 +30,7 @@ const HM_MONTHS_FULL=['January','February','March','April','May','June','July','
 // compact signed amount for narrow screens: 1.2K, 12K, 1.5L (INR lakh), 2Cr
 function fmtCompact(v){
   const a=Math.abs(v),sg=v<0?'−':(v>0?'+':''),t=(x,dp)=>String(+x.toFixed(dp));
-  if(currentProfile==='INR'){
+  if(currentProfile!=='USD'){
     if(a>=1e7)return sg+t(a/1e7,1)+'Cr';
     if(a>=1e5)return sg+t(a/1e5,1)+'L';
   }

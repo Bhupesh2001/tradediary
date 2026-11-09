@@ -45,7 +45,7 @@ function renderNotesPanel(){
     <div style="display:flex;gap:12px;margin-bottom:12px;flex-wrap:wrap">
       <span style="font-size:12px;color:var(--muted)">Entry <b style="color:var(--text)">${s}${t.entry}</b></span>
       <span style="font-size:12px;color:var(--muted)">Exit <b style="color:var(--text)">${s}${t.exit}</b></span>
-      <span style="font-size:12px;color:var(--muted)">Amount <b style="color:var(--text)">${s}${tradeAmountUsed(t).toLocaleString(t.profile==='INR'?'en-IN':'en-US',{maximumFractionDigits:t.profile==='USD'?4:2})}</b></span>
+      <span style="font-size:12px;color:var(--muted)">Amount <b style="color:var(--text)">${s}${tradeAmountUsed(t).toLocaleString(t.profile==='USD'?'en-US':'en-IN',{maximumFractionDigits:t.profile==='USD'?4:2})}</b></span>
       <span style="font-size:12px;color:var(--muted)">Return <b style="color:${t.pnl>=0?'var(--accent)':'var(--danger)'}">${fmtPct(tradePnlPct(t))}</b></span>
       ${t.fees?`<span style="font-size:12px;color:var(--muted)">Gross <b style="color:var(--text)">${fmtPnl(t.grossPnl??t.pnl)}</b></span><span style="font-size:12px;color:var(--muted)">Charges <b style="color:var(--warn)" title="${t.feeBreakdown?escHtml(feeBreakdownText(t.feeBreakdown,t.profile)):''}">${s}${t.fees}</b></span>`:''}
       ${t.sl?`<span style="font-size:12px;color:var(--muted)">SL <b style="color:var(--danger)">${s}${t.sl}</b></span>`:''}
